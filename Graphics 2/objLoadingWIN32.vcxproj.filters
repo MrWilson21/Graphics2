@@ -125,6 +125,15 @@
     <ClInclude Include="Box.h">
       <Filter>Header Files\Box</Filter>
     </ClInclude>
+    <ClInclude Include="gl\glew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\glxew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gl\wglew.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="glslfiles\basicTransformationsWithDisplacement.vert">
@@ -145,5 +154,47 @@
     <None Include="glslfiles\basicTransformations.frag">
       <Filter>Header Files\glslfiles</Filter>
     </None>
+    <None Include="nvImage.dll" />
+    <None Include="nvImaged.dll" />
+    <None Include="objLoadingWIN32.vcproj" />
+    <None Include="zlib1.dll" />
+    <None Include="glew32.dll" />
+    <None Include="libpng13.dll" />
+    <None Include="TestModels\axes.mtl" />
+    <None Include="TestModels\box.mtl" />
+    <None Include="glslfiles\displacement.vert" />
+    <None Include="glslfiles\displacement.frag" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="nvImage.lib" />
+    <Library Include="nvImageD.lib" />
+    <Library Include="glew32.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="TestModels\axes.obj" />
+    <Object Include="TestModels\box.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="TestModels\blue.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TestModels\eye_gree.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TestModels\face_1_e.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TestModels\faceP.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TestModels\green.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TestModels\red.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="TestModels\yellow.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

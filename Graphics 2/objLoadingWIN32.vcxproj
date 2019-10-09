@@ -111,6 +111,9 @@
     <ClInclude Include="3dStruct\BoundingBox.h" />
     <ClInclude Include="3dStruct\threeDModel.h" />
     <ClInclude Include="Box.h" />
+    <ClInclude Include="gl\glew.h" />
+    <ClInclude Include="gl\glxew.h" />
+    <ClInclude Include="gl\wglew.h" />
     <ClInclude Include="Images\imageloader.h" />
     <ClInclude Include="Images\nvImage.h" />
     <ClInclude Include="Obj\OBJLoader.h" />
@@ -124,12 +127,40 @@
     <ClInclude Include="shaders\Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="glew32.dll" />
     <None Include="glslfiles\basic.frag" />
     <None Include="glslfiles\basic.vert" />
     <None Include="glslfiles\basicTransformations.frag" />
     <None Include="glslfiles\basicTransformations.vert" />
     <None Include="glslfiles\basicTransformationsWithDisplacement.frag" />
     <None Include="glslfiles\basicTransformationsWithDisplacement.vert" />
+    <None Include="glslfiles\displacement.frag" />
+    <None Include="glslfiles\displacement.vert" />
+    <None Include="libpng13.dll" />
+    <None Include="nvImage.dll" />
+    <None Include="nvImaged.dll" />
+    <None Include="objLoadingWIN32.vcproj" />
+    <None Include="TestModels\axes.mtl" />
+    <None Include="TestModels\box.mtl" />
+    <None Include="zlib1.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="glew32.lib" />
+    <Library Include="nvImage.lib" />
+    <Library Include="nvImageD.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="TestModels\axes.obj" />
+    <Object Include="TestModels\box.obj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="TestModels\blue.png" />
+    <Image Include="TestModels\eye_gree.png" />
+    <Image Include="TestModels\faceP.png" />
+    <Image Include="TestModels\face_1_e.png" />
+    <Image Include="TestModels\green.png" />
+    <Image Include="TestModels\red.png" />
+    <Image Include="TestModels\yellow.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
