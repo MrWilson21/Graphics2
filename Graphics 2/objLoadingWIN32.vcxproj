@@ -127,6 +127,7 @@
     <ClInclude Include="shaders\Shader.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Blender files\untitled.blend" />
     <None Include="glew32.dll" />
     <None Include="glslfiles\basic.frag" />
     <None Include="glslfiles\basic.vert" />
@@ -140,27 +141,12 @@
     <None Include="nvImage.dll" />
     <None Include="nvImaged.dll" />
     <None Include="objLoadingWIN32.vcproj" />
-    <None Include="TestModels\axes.mtl" />
-    <None Include="TestModels\box.mtl" />
     <None Include="zlib1.dll" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="glew32.lib" />
     <Library Include="nvImage.lib" />
     <Library Include="nvImageD.lib" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="TestModels\axes.obj" />
-    <Object Include="TestModels\box.obj" />
-  </ItemGroup>
-  <ItemGroup>
-    <Image Include="TestModels\blue.png" />
-    <Image Include="TestModels\eye_gree.png" />
-    <Image Include="TestModels\faceP.png" />
-    <Image Include="TestModels\face_1_e.png" />
-    <Image Include="TestModels\green.png" />
-    <Image Include="TestModels\red.png" />
-    <Image Include="TestModels\yellow.png" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
