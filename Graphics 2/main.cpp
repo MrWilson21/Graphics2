@@ -3,18 +3,7 @@
 //includes areas for keyboard control, mouse control, resizing the window
 //and draws a spinning rectangle
 
-#include <windows.h>		// Header File For Windows
-#include "gl/glew.h"
-#include "gl/wglew.h"
-#pragma comment(lib, "glew32.lib")
-
-#include "shaders/Shader.h"   // include shader header file, this is not part of OpenGL
-
-
-#include "glm\glm.hpp"
-#include "glm\gtc\matrix_transform.hpp"
-#include "glm\gtc\type_ptr.hpp"
-#include "glm\gtc\matrix_inverse.hpp"
+#include "App.h"
 
 glm::mat4 objectRotation;
 glm::quat q;
@@ -22,9 +11,6 @@ glm::quat q;
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
 
-//MODEL LOADING
-#include "3DStruct\threeDModel.h"
-#include "Obj\OBJLoader.h"
 
 float amount = 0;
 float temp = 0.002f;
