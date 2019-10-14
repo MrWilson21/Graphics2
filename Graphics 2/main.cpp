@@ -98,6 +98,7 @@ void display()
 
 	//DRAW THE MODEL
 	ModelViewMatrix = viewingMatrix * objectRotation;
+	ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(5, 5, 5));
 	
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 

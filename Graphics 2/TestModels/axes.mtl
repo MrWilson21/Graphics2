@@ -1,5 +1,5 @@
-# Blender MTL File: 'untitled.blend'
-# Material Count: 2
+# Blender MTL File: 'sub1.blend'
+# Material Count: 5
 
 newmtl Material
 Ns 225.000000
@@ -10,15 +10,48 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Bump Material Normal.png
-map_Kd base.png
-map_Ks Material Specular.png
-map_Ns Material Roughness.png
+map_Kd subfloats.png
 
-newmtl None
-Ns 500
-Ka 0.8 0.8 0.8
-Kd 0.8 0.8 0.8
-Ks 0.8 0.8 0.8
-d 1
+newmtl Material.001
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
 illum 2
+map_Kd submaindiffuse.png
+
+newmtl Material.002
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd subrotorhub.png
+
+newmtl Material.003
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd subrotor.png
+
+newmtl Material.004
+Ns 225.000000
+Ka 1.000000 1.000000 1.000000
+Kd 0.800000 0.800000 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.0 0.0 0.0
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd subfloats.png
