@@ -20,6 +20,12 @@ class App
 {
 public:
 	App();
-	~App();
+
+	static int	mouse_x;
+	static int mouse_y;
+	static bool LeftPressed;
+	static int screenWidth;
+	static int screenHeight;
+	static bool keys[256];
 };
 

@@ -4,9 +4,7 @@
 //and draws a spinning rectangle
 
 #include "App.h"
-
-glm::mat4 objectRotation;
-glm::quat q;
+#include "Player.h"
 
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
@@ -15,32 +13,18 @@ Shader* myBasicShader;
 float amount = 0;
 float temp = 0.002f;
 	
+Player player = Player();
 
-ThreeDModel model, modelbox;
 OBJLoader objLoader;
 ///END MODEL LOADING
 
 glm::mat4 ProjectionMatrix; // matrix for the orthographic projection
 glm::mat4 ModelViewMatrix;  // matrix for the modelling and viewing
 
-//Material properties
-float Material_Ambient[4] = {0.1f, 0.1f, 0.1f, 1.0f};
-float Material_Diffuse[4] = {0.8f, 0.8f, 0.8f, 1.0f};
-float Material_Specular[4] = {0.9f,0.9f,0.8f,1.0f};
-float Material_Shininess = 50;
-
 //Light Properties
 float Light_Ambient_And_Diffuse[4] = {0.8f, 0.8f, 0.8f, 1.0f};
 float Light_Specular[4] = {1.0f,1.0f,1.0f,1.0f};
 float LightPos[4] = {0.0f, 0.0f, 1.0f, 0.0f};
-
-//
-int	mouse_x=0, mouse_y=0;
-bool LeftPressed = false;
-int screenWidth=600, screenHeight=600;
-bool keys[256];
-float spin=180;
-float speed=0;
 
 //OPENGL FUNCTION PROTOTYPES
 void display();				//called in winmain to draw everything to the screen
@@ -48,7 +32,6 @@ void reshape(int width, int height);				//called when the window is resized
 void init();				//called in winmain when the program starts.
 void processKeys();         //called in winmain to process keyboard input
 void update();				//called in winmain to update variables
-void updateTransform(float xinc, float yinc, float zinc);
 
 /*************    START OF OPENGL FUNCTIONS   ****************/
 void display()									
@@ -76,55 +59,20 @@ void display()
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "light_diffuse"), 1, Light_Ambient_And_Diffuse);
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "light_specular"), 1, Light_Specular);
 
-	glUniform4fv(glGetUniformLocation(myShader->handle(), "material_ambient"), 1, Material_Ambient);
-	glUniform4fv(glGetUniformLocation(myShader->handle(), "material_diffuse"), 1, Material_Diffuse);
-	glUniform4fv(glGetUniformLocation(myShader->handle(), "material_specular"), 1, Material_Specular);
-	glUniform1f(glGetUniformLocation(myShader->handle(), "material_shininess"), Material_Shininess);
-
-
-	//DRAW THE MODEL
-	ModelViewMatrix = viewingMatrix * objectRotation;
-	ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(5, 5, 5));
-	
-	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
-
-	
-	glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(ModelViewMatrix));
-	glUniformMatrix3fv(glGetUniformLocation(myShader->handle(), "NormalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
-	
-	model.drawElementsUsingVBO(myShader);
-	
-	
-	glUseProgram(myBasicShader->handle());  // use the shader
-	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
-	
-	//model.drawBoundingBox(myBasicShader);
-	//model.drawOctreeLeaves(myBasicShader);
-	
-	glUseProgram(myShader->handle());  // use the shader
-
-	ModelViewMatrix = glm::translate(viewingMatrix, glm::vec3(20,0,0));
-
-	normalMatrix = glm::inverseTranspose(glm::mat3(ModelViewMatrix));
-	glUniformMatrix3fv(glGetUniformLocation(myShader->handle(), "NormalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
-	
-	//Pass the uniform for the modelview matrix - in this case just "r"
-	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
-	modelbox.drawElementsUsingVBO(myShader);
+	player.display(myShader, myBasicShader, &viewingMatrix, &ProjectionMatrix);
 	
 	glFlush();
 }
 
 void reshape(int width, int height)		// Resize the OpenGL window
 {
-	screenWidth=width; screenHeight = height;           // to ensure the mouse coordinates match 
+	App::screenWidth=width; App::screenHeight = height;           // to ensure the mouse coordinates match 
 														// we will use these values to set the coordinate system
 
 	glViewport(0,0,width,height);						// Reset The Current Viewport
 
 	//Set the projection matrix
-	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)screenWidth/(GLfloat)screenHeight, 1.0f, 200.0f);
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 1.0f, 200.0f);
 }
 void init()
 {
@@ -145,117 +93,14 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}		
-
-	glUseProgram(myShader->handle());  // use the shader
-
-	glEnable(GL_TEXTURE_2D);
 	
-	cout << " loading model " << endl;
-	if(objLoader.loadModel("TestModels/axes.obj", model))//returns true if the model is loaded, puts the model in the model parameter
-	{
-		cout << " model loaded " << endl;		
-
-		//if you want to translate the object to the origin of the screen,
-		//first calculate the centre of the object, then move all the vertices
-		//back so that the centre is on the origin.
-		//model.calcCentrePoint();
-		//model.centreOnZero();
-
-	
-		model.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
-				
-
-		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
-		model.initDrawElements();
-		model.initVBO(myShader);
-		model.deleteVertexFaceData();
-		
-	}
-	else
-	{
-		cout << " model failed to load " << endl;
-	}
-
-	if(objLoader.loadModel("TestModels/box.obj", modelbox))//returns true if the model is loaded, puts the model in the model parameter
-	{
-		cout << " model loaded " << endl;		
-
-		//if you want to translate the object to the origin of the screen,
-		//first calculate the centre of the object, then move all the vertices
-		//back so that the centre is on the origin.
-		modelbox.calcCentrePoint();
-		modelbox.centreOnZero();
-
-	
-		modelbox.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
-				
-
-		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
-		modelbox.initDrawElements();
-		modelbox.initVBO(myShader);
-		modelbox.deleteVertexFaceData();
-		
-	}
-	else
-	{
-		cout << " model failed to load " << endl;
-	}
-
+	player.init(&objLoader, myShader);
 	
 }
-void processKeys()
-{
-	float spinXinc=0, spinYinc=0, spinZinc=0;
-	if(keys[VK_UP])
-	{
-		spinXinc= 0.01f;
-	}
-	if(keys[VK_DOWN])
-	{
-		spinXinc= -0.01f;
-	}
-	if(keys[VK_LEFT])
-	{
-		spinYinc = 0.01f;
-	}
-	if(keys[VK_RIGHT])
-	{
-		spinYinc = -0.01f;
-	}
-	if(keys[VK_SPACE])
-	{
-		spinZinc = 0.01f;
-	}
-	if(keys[VK_SHIFT])
-	{
-		spinZinc = -0.01f;
-	}
-	updateTransform(spinXinc, spinYinc, spinZinc);
-}
-void updateTransform(float xinc, float yinc, float zinc)
-{
-	glm::mat4 matrixX, matrixXY;
-	
-	//rotation about the local x axis
-	q = glm::angleAxis(xinc, glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2])); 
-	matrixX = glm::mat4_cast(q) * objectRotation;
 
-	//EXAMPLE FOR ACCESSING USING A 1D array
-	const float *pSource = (const float*)glm::value_ptr(matrixX);
-	//rotation about the local y axis
-	q = glm::angleAxis(yinc, glm::vec3(pSource[4], pSource[5], pSource[6])); 
-	matrixXY = glm::mat4_cast(q) * matrixX;
-	
-	//EXAMPLE ACCESSING WITH 2D GLM structure.
-	//rotation about the local z axis
-	q = glm::angleAxis(zinc, glm::vec3(matrixXY[2][0], matrixXY[2][1], matrixXY[2][2])); 
-	objectRotation = glm::mat4_cast(q) * matrixXY;
-}
 void update()
 {
-	spin += speed;
-	if(spin > 360)
-		spin = 0;
+	player.update();
 }
 /**************** END OPENGL FUNCTIONS *************************/
 
@@ -286,7 +131,7 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 	freopen_s(&stream, "CONOUT$", "w", stdout);
 
 	// Create Our OpenGL Window
-	if (!CreateGLWindow("OpenGL Win32 Example",screenWidth,screenHeight))
+	if (!CreateGLWindow("OpenGL Win32 Example",App::screenWidth,App::screenHeight))
 	{
 		return 0;									// Quit If Window Was Not Created
 	}
@@ -307,10 +152,8 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 		}
 		else										// If There Are No Messages
 		{
-			if(keys[VK_ESCAPE])
+			if(App::keys[VK_ESCAPE])
 				done = true;
-
-			processKeys();			//process keyboard
 			
 			display();					// Draw The Scene
 			update();					// update variables
@@ -348,33 +191,33 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
 
 		case WM_LBUTTONDOWN:
 			{
-	            mouse_x = LOWORD(lParam);          
-				mouse_y = screenHeight - HIWORD(lParam);
-				LeftPressed = true;
+	            App::mouse_x = LOWORD(lParam);          
+				App::mouse_y = App::screenHeight - HIWORD(lParam);
+				App::LeftPressed = true;
 			}
 		break;
 
 		case WM_LBUTTONUP:
 			{
-	            LeftPressed = false;
+				App::LeftPressed = false;
 			}
 		break;
 
 		case WM_MOUSEMOVE:
 			{
-	            mouse_x = LOWORD(lParam);          
-				mouse_y = screenHeight  - HIWORD(lParam);
+				App::mouse_x = LOWORD(lParam);
+				App::mouse_y = App::screenHeight  - HIWORD(lParam);
 			}
 		break;
 		case WM_KEYDOWN:							// Is A Key Being Held Down?
 		{
-			keys[wParam] = true;					// If So, Mark It As TRUE
+			App::keys[wParam] = true;					// If So, Mark It As TRUE
 			return 0;								// Jump Back
 		}
 		break;
 		case WM_KEYUP:								// Has A Key Been Released?
 		{
-			keys[wParam] = false;					// If So, Mark It As FALSE
+			App::keys[wParam] = false;					// If So, Mark It As FALSE
 			return 0;								// Jump Back
 		}
 		break;
