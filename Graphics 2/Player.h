@@ -13,12 +13,20 @@ private:
 	float Material_Specular[4] = { 0.9f,0.9f,0.8f,1.0f };
 	float Material_Shininess = 50;
 
-	glm::mat4 objectRotation;
-	glm::quat q;
+	float spinForce = 2.5;
+	glm::vec3 rotationForce;
+	float linearRotationDamping = 4;
+	float staticRotationDamping = 0.1;
+
+	glm::vec3 velocity;
+	float accelerationForce = 30;
+	float linearDrag = 5;
+	float staticDrag = 3;
 
 public:
 	glm::vec3 postion;
 	glm::vec3 rotation;
+	glm::mat4 objectRotation;
 
 	Player();
 

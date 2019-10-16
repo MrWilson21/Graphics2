@@ -5,21 +5,29 @@
 
 #include "App.h"
 #include "Player.h"
+#include "Box.h"
 
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
+
+double maxFrameTime = 0.01;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
+int maxFps = 200;
+steady_clock::time_point totalFrameTime = steady_clock::now();
+float timeScale = 1;
 
 
 float amount = 0;
 float temp = 0.002f;
 	
 Player player = Player();
+Box b;
 
 OBJLoader objLoader;
 ///END MODEL LOADING
 
 glm::mat4 ProjectionMatrix; // matrix for the orthographic projection
-glm::mat4 ModelViewMatrix;  // matrix for the modelling and viewing
+glm::mat4 ModelViewMatrix = glm::mat4(1.0);
+glm::mat4 viewingMatrix;
 
 //Light Properties
 float Light_Ambient_And_Diffuse[4] = {0.8f, 0.8f, 0.8f, 1.0f};
@@ -30,7 +38,6 @@ float LightPos[4] = {0.0f, 0.0f, 1.0f, 0.0f};
 void display();				//called in winmain to draw everything to the screen
 void reshape(int width, int height);				//called when the window is resized
 void init();				//called in winmain when the program starts.
-void processKeys();         //called in winmain to process keyboard input
 void update();				//called in winmain to update variables
 
 /*************    START OF OPENGL FUNCTIONS   ****************/
@@ -51,7 +58,9 @@ void display()
 	GLuint matLocation = glGetUniformLocation(myShader->handle(), "ProjectionMatrix");  
 	glUniformMatrix4fv(matLocation, 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
-	glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0,0,-50));
+	glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(-50, 0, -50));
+
+	//viewingMatrix = glm::lookAt(glm::vec3(10, 0, 0), player.postion, glm::vec3(0, 1, 0));
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "LightPos"), 1, LightPos);
@@ -60,6 +69,10 @@ void display()
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "light_specular"), 1, Light_Specular);
 
 	player.display(myShader, myBasicShader, &viewingMatrix, &ProjectionMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
+	b.render();
+
+	App::printMatrix(viewingMatrix);
 	
 	glFlush();
 }
@@ -93,7 +106,7 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}		
-	
+	b.constructGeometry(myShader, -1, -1, -1, 1, 1, 1);
 	player.init(&objLoader, myShader);
 	
 }
@@ -158,6 +171,29 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 			display();					// Draw The Scene
 			update();					// update variables
 			SwapBuffers(hDC);				// Swap Buffers (Double Buffering)
+
+			App::deltaTime = double(duration_cast<duration<double>>(steady_clock::now() - totalFrameTime).count()) * timeScale;
+
+			//Limit fps to prevent cpu being hogged for unneccesarily large fps
+			if (timeScale / App::deltaTime > maxFps)
+			{
+				double timeToWait = (1.0 / maxFps) - App::deltaTime * 1.0 / timeScale;
+				while (timeToWait > 0.0)
+				{
+					std::this_thread::sleep_for(std::chrono::nanoseconds{ 0 });
+					App::deltaTime = double(duration_cast<duration<double>>(steady_clock::now() - totalFrameTime).count());
+					timeToWait = (1.0 / maxFps) - App::deltaTime * 1.0 / timeScale;
+				}
+			}
+
+			App::deltaTime = double(duration_cast<duration<double>>(steady_clock::now() - totalFrameTime).count()) * timeScale;
+			totalFrameTime = steady_clock::now();
+
+			//Force delta time to be less than max frame time
+			if (App::deltaTime > maxFrameTime)
+			{
+				App::deltaTime = maxFrameTime;
+			}
 		}
 	}
 

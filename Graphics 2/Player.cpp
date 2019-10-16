@@ -13,8 +13,10 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 
 
 	//DRAW THE MODEL
-	ModelViewMatrix = *viewingMatrix;
-	ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(5, 5, 5));
+	//ModelViewMatrix = *viewingMatrix;
+	ModelViewMatrix = glm::mat4(1.0);
+	ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(3, 3, 3));
+	ModelViewMatrix = glm::translate(ModelViewMatrix, postion);
 	ModelViewMatrix = ModelViewMatrix * objectRotation;
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
@@ -64,49 +66,100 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 
 void Player::move()
 {
-	float xinc = 0, yinc = 0, zinc = 0;
 	if (App::keys[VK_UP])
 	{
-		xinc = 0.01f;
+		rotationForce.z += spinForce * App::deltaTime;
 	}
 	if (App::keys[VK_DOWN])
 	{
-		xinc = -0.01f;
+		rotationForce.z += -spinForce * App::deltaTime;
 	}
 	if (App::keys[VK_LEFT])
 	{
-		yinc = 0.01f;
+		rotationForce.y += spinForce * App::deltaTime;
 	}
 	if (App::keys[VK_RIGHT])
 	{
-		yinc = -0.01f;
+		rotationForce.y += -spinForce * App::deltaTime;
 	}
 	if (App::keys[VK_SPACE])
 	{
-		zinc = 0.01f;
+		rotationForce.x += spinForce * App::deltaTime;
 	}
 	if (App::keys[VK_SHIFT])
 	{
-		zinc = -0.01f;
+		rotationForce.x += -spinForce * App::deltaTime;
 	}
 
+	float xDecrement = (abs(rotationForce.x) * linearRotationDamping + staticRotationDamping) * App::deltaTime;
+	if (xDecrement >= abs(rotationForce.x)) rotationForce.x = 0;
+	else rotationForce.x = (rotationForce.x > 0) ? rotationForce.x - xDecrement : rotationForce.x + xDecrement;
+
+	float yDecrement = (abs(rotationForce.y) * linearRotationDamping + staticRotationDamping) * App::deltaTime;
+	if (yDecrement >= abs(rotationForce.y)) rotationForce.y = 0;
+	else rotationForce.y = (rotationForce.y > 0) ? rotationForce.y - yDecrement : rotationForce.y + yDecrement;
+
+	float zDecrement = (abs(rotationForce.z) * linearRotationDamping + staticRotationDamping) * App::deltaTime;
+	if (zDecrement >= abs(rotationForce.z)) rotationForce.z = 0;
+	else rotationForce.z = (rotationForce.z > 0) ? rotationForce.z - zDecrement : rotationForce.z + zDecrement;
+
+	//rotation = glm::radians(glm::eulerAngles(glm::quat_cast(objectRotation)));
+	//glm::vec3 aa = App::ConvertMatToEulerAnglesXYZ(glm::mat3(objectRotation));
+	//cout << aa.x << ", " << aa.y << ", " << aa.z << "\t\t\t";
+
+	//rotation.x += rotationForce.x * App::deltaTime;
+	//rotation.y += rotationForce.y * App::deltaTime;
+	//rotation.z += rotationForce.z * App::deltaTime;
+
+	//objectRotation = glm::eulerAngleYXZ(rotation.y, rotation.x, rotation.z);
+
+	glm::quat currentRotation;
+
+	glm::quat newRotation;
+	currentRotation = glm::quat_cast(objectRotation);
 
 	glm::mat4 matrixX, matrixXY;
 
 	//rotation about the local x axis
-	q = glm::angleAxis(xinc, glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
-	matrixX = glm::mat4_cast(q) * objectRotation;
+	newRotation = glm::angleAxis(rotationForce.x, glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
+	matrixX = glm::mat4_cast(newRotation) * objectRotation;
 
-	//EXAMPLE FOR ACCESSING USING A 1D array
-	const float *pSource = (const float*)glm::value_ptr(matrixX);
 	//rotation about the local y axis
-	q = glm::angleAxis(yinc, glm::vec3(pSource[4], pSource[5], pSource[6]));
-	matrixXY = glm::mat4_cast(q) * matrixX;
+	newRotation = glm::angleAxis(rotationForce.y, glm::vec3(matrixX[1][0], matrixX[1][1], matrixX[1][2]));
+	matrixXY = glm::mat4_cast(newRotation) * matrixX;
 
-	//EXAMPLE ACCESSING WITH 2D GLM structure.
 	//rotation about the local z axis
-	q = glm::angleAxis(zinc, glm::vec3(matrixXY[2][0], matrixXY[2][1], matrixXY[2][2]));
-	objectRotation = glm::mat4_cast(q) * matrixXY;
+	newRotation = glm::angleAxis(rotationForce.z, glm::vec3(matrixXY[2][0], matrixXY[2][1], matrixXY[2][2]));
+	objectRotation = glm::mat4_cast(newRotation) * matrixXY;
+
+	currentRotation = glm::quat_cast(objectRotation);
+	//cout << currentRotation.x << ", " << currentRotation.y << ", " << currentRotation.z << ", " << currentRotation.w << "\n";
+
+	rotation = App::ConvertMatToEulerAnglesXYZ(glm::mat3(objectRotation));
+	
+	//cout << rotation.x << ", " << rotation.y << ", " << rotation.z << "\n";
+	//cout << rotationForce.x << ", " << rotationForce.y << ", " << rotationForce.z << "\n";
+
+	if (App::keys[0x57])
+	{
+		velocity += (glm::vec3)glm::translate(objectRotation, glm::vec3(-accelerationForce * App::deltaTime, 0, 0))[3];
+	}
+	if (App::keys[0x53])
+	{
+		velocity += (glm::vec3)glm::translate(objectRotation, glm::vec3(accelerationForce * App::deltaTime, 0, 0))[3];
+	}
+	
+	float newVelMagnitude = (glm::length(velocity) - (glm::length(velocity) * linearRotationDamping + staticRotationDamping) * App::deltaTime);
+	if (newVelMagnitude <= 0)
+	{
+		velocity = glm::vec3(0, 0, 0);
+	}
+	else
+	{
+		velocity = glm::normalize(velocity) * newVelMagnitude;
+	}
+
+	postion += velocity * (float)App::deltaTime;
 }
 
 void Player::update()
