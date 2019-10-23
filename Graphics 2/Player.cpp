@@ -27,9 +27,9 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 
 	model.drawElementsUsingVBO(myShader);
 
-	glUseProgram(myBasicShader->handle());  // use the shader
-	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &(*ProjectionMatrix)[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
+	//glUseProgram(myBasicShader->handle());  // use the shader
+	//glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &(*ProjectionMatrix)[0][0]);
+	//glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
 	//model.drawBoundingBox(myBasicShader);
 	//model.drawOctreeLeaves(myBasicShader);

@@ -30,9 +30,9 @@ void NoiseChunk::genTerrain(Shader* myShader)
 	float zFactor = 1.0f / (size - 1);
 	float yFactor = 1.0f / (height - 1);
 	
-	for (int layer = 0; layer < height; layer++) {
-		for (int row = 0; row < size; row++) {
-			for (int col = 0; col < size; col++) {
+	for (int col = 0; col < size; col++) {
+		for (int layer = 0; layer < height; layer++) {
+			for (int row = 0; row < size; row++) {
 				float x = xFactor * col;
 				float y = yFactor * layer;
 				float z = zFactor * row;
@@ -43,7 +43,7 @@ void NoiseChunk::genTerrain(Shader* myShader)
 				glm::vec3 p(x * freq, y * freq, z * freq);
 				float val = glm::perlin(p);
 
-				data[col][layer][row] = val;	
+				data[col][layer][row] = val;
 			}
 		}
 	}
@@ -53,19 +53,20 @@ void NoiseChunk::genTerrain(Shader* myShader)
 	vector<unsigned int> triangles;
 	numOfVerts = 0;
 	numOfTris = 0;
+	bool a = true;
 
-	for (int y = 0; y < height - 1; y++) {
-		for (int z = 0; z < size - 1; z++) {
-			for (int x = 0; x < size - 1; x++) {
+	for (int x = 0; x < size - 1; x++) {
+		for (int y = 0; y <  height - 1; y++) {
+			for (int z = 0; z < size - 1; z++) {
 				glm::vec4 cubeCorners[8] = {
 					glm::vec4(x, y, z, data[x][y][z]),
-					glm::vec4(x, y, z, data[x + 1][y][z]),
-					glm::vec4(x, y, z, data[x+1][y][z+1]),
-					glm::vec4(x, y, z, data[x][y][z+1]),
-					glm::vec4(x, y, z, data[x][y+1][z]),
-					glm::vec4(x, y, z, data[x+1][y+1][z]),
-					glm::vec4(x, y, z, data[x+1][y+1][z+1]),
-					glm::vec4(x, y, z, data[x][y+1][z+1])
+					glm::vec4(x+1, y, z, data[x + 1][y][z]),
+					glm::vec4(x+1, y, z+1, data[x+1][y][z+1]),
+					glm::vec4(x, y, z+1, data[x][y][z+1]),
+					glm::vec4(x, y+1, z, data[x][y+1][z]),
+					glm::vec4(x+1, y+1, z, data[x+1][y+1][z]),
+					glm::vec4(x+1, y+1, z+1, data[x+1][y+1][z+1]),
+					glm::vec4(x, y+1, z+1, data[x][y+1][z+1])
 				};
 
 				int cubeIndex = 0;
@@ -77,6 +78,18 @@ void NoiseChunk::genTerrain(Shader* myShader)
 				if (cubeCorners[5].w < surfaceLevel) cubeIndex |= 32;
 				if (cubeCorners[6].w < surfaceLevel) cubeIndex |= 64;
 				if (cubeCorners[7].w < surfaceLevel) cubeIndex |= 128;
+
+				if (!a)
+				{
+					for (int i = 0; i < 8; i++)
+					{
+						//cout << "(" << cubeCorners[i].x << ", " << cubeCorners[i].y << ", " << cubeCorners[i].z << ", " << cubeCorners[0].w << ")\n";
+						cout << cubeCorners[0].w << ")\n";
+					}
+					cout << "\n\n";
+					//a = true;
+				}
+			
 
 				// Create triangles for current cube configuration
 				for (int i = 0; triangulation[cubeIndex][i] != -1; i += 3) {
@@ -104,7 +117,7 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					numOfVerts += 3;
 					numOfTris++;
 
-					cout << vert.x << ", " << vert.y << ", " << vert.z << "\n";
+					cout << "(" << a0 << ", " << b0 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a1], cubeCorners[b1]);
 					vertices.push_back(vert.x);
@@ -119,6 +132,8 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					numOfVerts += 3;
 					numOfTris++;
 
+					cout << "(" << a1 << ", " << b1 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
+
 					vert = interpolateVerts(cubeCorners[a2], cubeCorners[b2]);
 					vertices.push_back(vert.x);
 					vertices.push_back(vert.y);
@@ -131,7 +146,7 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					triangles.push_back(numOfVerts + 2);
 					numOfVerts += 3;
 					numOfTris++;
-
+					cout << "(" << a2 << ", " << b2 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\n";
 				}
 			}
 		}

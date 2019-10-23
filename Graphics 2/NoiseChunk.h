@@ -4,8 +4,8 @@
 class NoiseChunk
 {
 public:
-	static const int size = 8;
-	static const int height = 8;
+	static const int size = 16;
+	static const int height = 16;
 
 	int a = 1;
 	int b = 2;

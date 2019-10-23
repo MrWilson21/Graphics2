@@ -72,8 +72,9 @@ void display()
 
 	player.display(myShader, myBasicShader, &viewingMatrix, &ProjectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-	b.render();
-	
+	//b.render();
+	terrainGenerator.render();
+
 	glFlush();
 }
 
@@ -106,7 +107,7 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}
-	//terrainGenerator.genTerrain(myShader);
+	terrainGenerator.genTerrain(myShader);
 	b.constructGeometry(myShader, -10, -10, -10, 10, 10, 10);
 	player.init(&objLoader, myShader);
 	
