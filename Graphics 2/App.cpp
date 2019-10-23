@@ -35,3 +35,10 @@ void App::printMatrix(const glm::mat4 & mat)
 	cout << mat[2][0] << ", " << mat[2][1] << ", " << mat[2][2] << ", " << mat[2][3] << "\n";
 	cout << mat[3][0] << ", " << mat[3][1] << ", " << mat[3][2] << ", " << mat[3][3] << "\n";
 }
+
+glm::mat4 App::CloneMatrix(const glm::mat4 matrix)
+{
+	glm::mat4 copy = glm::mat4(matrix[0], matrix[1], matrix[2], matrix[3]);
+
+	return copy;
+}

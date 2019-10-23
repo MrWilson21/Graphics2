@@ -100,6 +100,7 @@
     <ClCompile Include="3dStruct\BoundingBox.cpp" />
     <ClCompile Include="3dStruct\threeDModel.cpp" />
     <ClCompile Include="Images\imageLoaderPNG.cpp" />
+    <ClCompile Include="NoiseChunk.cpp" />
     <ClCompile Include="Obj\OBJLoader.cpp" />
     <ClCompile Include="Player.cpp" />
     <ClCompile Include="Structures\Vector2d.cpp" />
@@ -119,6 +120,7 @@
     <ClInclude Include="gl\wglew.h" />
     <ClInclude Include="Images\imageloader.h" />
     <ClInclude Include="Images\nvImage.h" />
+    <ClInclude Include="NoiseChunk.h" />
     <ClInclude Include="Obj\OBJLoader.h" />
     <ClInclude Include="Player.h" />
     <ClInclude Include="Structures\Vector2d.h" />

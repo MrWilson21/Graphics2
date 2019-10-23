@@ -13,7 +13,7 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 
 
 	//DRAW THE MODEL
-	ModelViewMatrix = *viewingMatrix;
+	ModelViewMatrix = App::CloneMatrix(*viewingMatrix);
 	//ModelViewMatrix = glm::mat4(1.0);
 	//ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(3, 3, 3));
 	ModelViewMatrix = glm::translate(ModelViewMatrix, postion);

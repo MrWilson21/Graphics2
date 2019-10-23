@@ -5,6 +5,7 @@
 
 #include "App.h"
 #include "Player.h"
+#include "NoiseChunk.h"
 #include "Box.h"
 
 Shader* myShader;  ///shader object 
@@ -19,6 +20,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
+NoiseChunk terrainGenerator = NoiseChunk();
 Player player = Player();
 Box b;
 
@@ -103,8 +105,9 @@ void init()
 	if(!myBasicShader->load("Basic", "glslfiles/basic.vert", "glslfiles/basic.frag"))
 	{
 		cout << "failed to load shader" << endl;
-	}		
-	b.constructGeometry(myShader, -1, -1, -1, 1, 1, 1);
+	}
+	//terrainGenerator.genTerrain(myShader);
+	b.constructGeometry(myShader, -10, -10, -10, 10, 10, 10);
 	player.init(&objLoader, myShader);
 	
 }
