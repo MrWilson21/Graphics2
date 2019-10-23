@@ -53,7 +53,8 @@ void NoiseChunk::genTerrain(Shader* myShader)
 	vector<unsigned int> triangles;
 	numOfVerts = 0;
 	numOfTris = 0;
-	bool a = true;
+	bool a = false;
+	unsigned int vertIndexes[size][size][height];
 
 	for (int x = 0; x < size - 1; x++) {
 		for (int y = 0; y <  height - 1; y++) {
@@ -83,11 +84,11 @@ void NoiseChunk::genTerrain(Shader* myShader)
 				{
 					for (int i = 0; i < 8; i++)
 					{
-						//cout << "(" << cubeCorners[i].x << ", " << cubeCorners[i].y << ", " << cubeCorners[i].z << ", " << cubeCorners[0].w << ")\n";
-						cout << cubeCorners[0].w << ")\n";
+						cout << "(" << cubeCorners[i].x << ", " << cubeCorners[i].y << ", " << cubeCorners[i].z << ", " << cubeCorners[0].w << ")\n";
+						//cout << cubeCorners[0].w << ")\n";
 					}
 					cout << "\n\n";
-					//a = true;
+					a = true;
 				}
 			
 
@@ -111,13 +112,9 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					colours.push_back(0.0);
 					colours.push_back(0.0);
 					colours.push_back(0.0);
-					triangles.push_back(numOfVerts);
-					triangles.push_back(numOfVerts +1);
-					triangles.push_back(numOfVerts +2);
-					numOfVerts += 3;
-					numOfTris++;
+					numOfVerts += 1;
 
-					cout << "(" << a0 << ", " << b0 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
+					//cout << "(" << a0 << ", " << b0 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a1], cubeCorners[b1]);
 					vertices.push_back(vert.x);
@@ -126,13 +123,9 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					colours.push_back(0.0);
 					colours.push_back(0.0);
 					colours.push_back(0.0);
-					triangles.push_back(numOfVerts);
-					triangles.push_back(numOfVerts + 1);
-					triangles.push_back(numOfVerts + 2);
-					numOfVerts += 3;
-					numOfTris++;
+					numOfVerts += 1;
 
-					cout << "(" << a1 << ", " << b1 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
+					//cout << "(" << a1 << ", " << b1 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a2], cubeCorners[b2]);
 					vertices.push_back(vert.x);
@@ -141,12 +134,15 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					colours.push_back(0.0);
 					colours.push_back(0.0);
 					colours.push_back(0.0);
-					triangles.push_back(numOfVerts);
-					triangles.push_back(numOfVerts + 1);
-					triangles.push_back(numOfVerts + 2);
-					numOfVerts += 3;
-					numOfTris++;
-					cout << "(" << a2 << ", " << b2 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\n";
+					numOfVerts += 1;
+					//cout << "(" << a2 << ", " << b2 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\n";
+
+					triangles.push_back(numOfVerts - 3);
+					triangles.push_back(numOfVerts - 2);
+					triangles.push_back(numOfVerts - 1);
+					numOfTris ++;
+
+					//cout << x << y << z << "\n";
 				}
 			}
 		}
@@ -154,6 +150,9 @@ void NoiseChunk::genTerrain(Shader* myShader)
 	verts = &vertices[0];
 	cols = &colours[0];
 	tInds = &triangles[0];
+
+	cout << numOfVerts << "\n";
+	cout << numOfTris << "\n";
 	
 	// VAO allocation
 	glGenVertexArrays(1, &m_vaoID);
@@ -193,8 +192,10 @@ void NoiseChunk::genTerrain(Shader* myShader)
 }
 
 glm::vec3 NoiseChunk::interpolateVerts(glm::vec4 v1, glm::vec4 v2) {
-	float t = (surfaceLevel - v1.w) / (v2.w - v1.w);
-	return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
+	//float t = (surfaceLevel - v1.w) / (v2.w - v1.w);
+	//return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
+	glm::vec3 pos = glm::vec3(glm::vec3(v1) + glm::vec3(v2));
+	return pos * 0.5f;
 }
 
 
