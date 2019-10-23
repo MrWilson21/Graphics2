@@ -10,7 +10,7 @@
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
 
-double maxFrameTime = 0.01;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
+double maxFrameTime = 0.05;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
 int maxFps = 200;
 steady_clock::time_point totalFrameTime = steady_clock::now();
 float timeScale = 1;
@@ -30,9 +30,9 @@ glm::mat4 ModelViewMatrix = glm::mat4(1.0);
 glm::mat4 viewingMatrix;
 
 //Light Properties
-float Light_Ambient_And_Diffuse[4] = {0.8f, 0.8f, 0.8f, 1.0f};
-float Light_Specular[4] = {1.0f,1.0f,1.0f,1.0f};
-float LightPos[4] = {0.0f, 0.0f, 1.0f, 0.0f};
+float Light_Ambient_And_Diffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+float Light_Specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
+float LightPos[4] = {0.0f, 10.0f, 0.0f, 0.0f};
 
 //OPENGL FUNCTION PROTOTYPES
 void display();				//called in winmain to draw everything to the screen
@@ -58,9 +58,9 @@ void display()
 	GLuint matLocation = glGetUniformLocation(myShader->handle(), "ProjectionMatrix");  
 	glUniformMatrix4fv(matLocation, 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
-	glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(-50, 0, -50));
+	//glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0, 0, -50));
 
-	//viewingMatrix = glm::lookAt(glm::vec3(10, 0, 0), player.postion, glm::vec3(0, 1, 0));
+	viewingMatrix = glm::lookAt(player.postion + glm::vec3(0, 5, -10), player.postion, glm::vec3(0, 1, 0));
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "LightPos"), 1, LightPos);
@@ -69,10 +69,8 @@ void display()
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "light_specular"), 1, Light_Specular);
 
 	player.display(myShader, myBasicShader, &viewingMatrix, &ProjectionMatrix);
-	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	b.render();
-
-	App::printMatrix(viewingMatrix);
 	
 	glFlush();
 }

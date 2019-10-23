@@ -20,8 +20,8 @@ private:
 
 	glm::vec3 velocity;
 	float accelerationForce = 30;
-	float linearDrag = 5;
-	float staticDrag = 3;
+	float linearDrag = 1;
+	float staticDrag = 0.5;
 
 public:
 	glm::vec3 postion;
