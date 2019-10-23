@@ -18,7 +18,6 @@ private:
 	float linearRotationDamping = 4;
 	float staticRotationDamping = 0.1;
 
-	glm::vec3 velocity;
 	float accelerationForce = 30;
 	float linearDrag = 1;
 	float staticDrag = 0.5;
@@ -27,6 +26,8 @@ public:
 	glm::vec3 postion;
 	glm::vec3 rotation;
 	glm::mat4 objectRotation;
+
+	glm::vec3 velocity;
 
 	Player();
 

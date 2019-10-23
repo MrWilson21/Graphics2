@@ -4,11 +4,11 @@
 class NoiseChunk
 {
 public:
-	static const int size = 32;
-	static const int height = 32;
+	static const int size = 64;
+	static const int height = 48;
 
-	int a = 1;
-	int b = 2;
+	int a = 5;
+	int b = 3;
 
 	float surfaceLevel = 0;
 

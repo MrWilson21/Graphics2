@@ -11,7 +11,7 @@ void NoiseChunk::render()
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glDrawElements(GL_TRIANGLES, numOfTris * 3, GL_UNSIGNED_INT, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -24,7 +24,7 @@ void NoiseChunk::render()
 
 void NoiseChunk::genTerrain(Shader* myShader)
 {
-	float data[size][size][height];
+	float data[size][height][size];
 
 	float xFactor = 1.0f / (size - 1);
 	float zFactor = 1.0f / (size - 1);
@@ -106,34 +106,43 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					int b2 = cornerIndexBFromEdge[triangulation[cubeIndex][i + 2]];
 
 					glm::vec3 vert = interpolateVerts(cubeCorners[a0], cubeCorners[b0]);
-					vertices.push_back(vert.x);
-					vertices.push_back(vert.y);
-					vertices.push_back(vert.z);
-					colours.push_back(0.0);
-					colours.push_back(0.0);
-					colours.push_back(0.0);
+					vertices.push_back(vert.x * b);
+					vertices.push_back(vert.y  * b);
+					vertices.push_back(vert.z  * b);
+					//colours.push_back(vert.y * (255 / height));
+					//colours.push_back(255 - vert.y * (255 / height));
+					//colours.push_back(255);
+					colours.push_back(0);
+					colours.push_back(255);
+					colours.push_back(240);
 					numOfVerts += 1;
 
 					//cout << "(" << a0 << ", " << b0 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a1], cubeCorners[b1]);
-					vertices.push_back(vert.x);
-					vertices.push_back(vert.y);
-					vertices.push_back(vert.z);
-					colours.push_back(0.0);
-					colours.push_back(0.0);
-					colours.push_back(0.0);
+					vertices.push_back(vert.x  * b);
+					vertices.push_back(vert.y * b);
+					vertices.push_back(vert.z  * b);
+					//colours.push_back(vert.y * (255 / height));
+					//colours.push_back(255 - vert.y * (255 / height));
+					//colours.push_back(255);
+					colours.push_back(0);
+					colours.push_back(255);
+					colours.push_back(240);
 					numOfVerts += 1;
 
 					//cout << "(" << a1 << ", " << b1 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a2], cubeCorners[b2]);
-					vertices.push_back(vert.x);
-					vertices.push_back(vert.y);
-					vertices.push_back(vert.z);
-					colours.push_back(0.0);
-					colours.push_back(0.0);
-					colours.push_back(0.0);
+					vertices.push_back(vert.x * b);
+					vertices.push_back(vert.y * b);
+					vertices.push_back(vert.z * b);
+					//colours.push_back(vert.y * (255 / height));
+					//colours.push_back(255 - vert.y * (255 / height));
+					//colours.push_back(255);
+					colours.push_back(0);
+					colours.push_back(255);
+					colours.push_back(240);
 					numOfVerts += 1;
 					//cout << "(" << a2 << ", " << b2 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\n";
 

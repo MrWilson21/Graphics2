@@ -62,7 +62,7 @@ void display()
 
 	//glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0, 0, -50));
 
-	viewingMatrix = glm::lookAt(player.postion + glm::vec3(0, 5, -10), player.postion, glm::vec3(0, 1, 0));
+	viewingMatrix = glm::lookAt(player.postion - glm::normalize(player.velocity) * 10.0f + glm::vec3(0, 4, 0), player.postion, glm::vec3(0, 1, 0));
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "LightPos"), 1, LightPos);
@@ -86,7 +86,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 	glViewport(0,0,width,height);						// Reset The Current Viewport
 
 	//Set the projection matrix
-	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 1.0f, 200.0f);
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 1.0f, 500.0f);
 }
 void init()
 {
