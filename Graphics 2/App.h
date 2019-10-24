@@ -43,6 +43,7 @@ public:
 
 	static glm::vec3 ConvertMatToEulerAnglesXYZ(const glm::mat3& mat);
 	static void printMatrix(const glm::mat4 & mat);
+	static void printVec3(const glm::vec3 & vec);
 
 	static glm::mat4 CloneMatrix(const glm::mat4 matrix);
 };

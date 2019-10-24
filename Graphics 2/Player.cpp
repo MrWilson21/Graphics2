@@ -2,6 +2,9 @@
 
 Player::Player()
 {
+	localUp = glm::vec3(0, 1, 0);
+	localForward = glm::vec3(0, 0, 1);
+	localRight = glm::vec3(1, 0, 0);
 }
 
 void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewingMatrix, glm::mat4* ProjectionMatrix)
@@ -16,7 +19,7 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	ModelViewMatrix = App::CloneMatrix(*viewingMatrix);
 	//ModelViewMatrix = glm::mat4(1.0);
 	//ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(3, 3, 3));
-	ModelViewMatrix = glm::translate(ModelViewMatrix, postion);
+	ModelViewMatrix = glm::translate(ModelViewMatrix, position);
 	ModelViewMatrix = ModelViewMatrix * objectRotation;
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
@@ -130,8 +133,8 @@ void Player::move()
 	glm::vec3 globalY = glm::vec3(0, 1, 0);
 	glm::vec3 globalZ = glm::vec3(0, 0, 1);
 
-	glm::vec3 i = localZSub + postion;
-	glm::vec3 p = postion;
+	glm::vec3 i = localZSub + position;
+	glm::vec3 p = position;
 	glm::vec3 b = i - p;
 	float dist = glm::dot(b, globalY);
 	//glm::vec3 c = i - a;
@@ -203,7 +206,11 @@ void Player::move()
 		velocity = glm::normalize(velocity) * newVelMagnitude;
 	}
 
-	postion += velocity * (float)App::deltaTime;
+	position += velocity * (float)App::deltaTime;
+
+	localRight = (glm::vec3)glm::translate(objectRotation, glm::vec3(0, 0, 1))[3];
+	localUp = (glm::vec3)glm::translate(objectRotation, glm::vec3(0, 1, 0))[3];
+	localForward = (glm::vec3)glm::translate(objectRotation, glm::vec3(1, 0, 0))[3];
 }
 
 void Player::update()

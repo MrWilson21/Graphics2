@@ -23,11 +23,15 @@ private:
 	float staticDrag = 0.5;
 
 public:
-	glm::vec3 postion;
+	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::mat4 objectRotation;
 
 	glm::vec3 velocity;
+
+	glm::vec3 localUp;
+	glm::vec3 localForward;
+	glm::vec3 localRight;
 
 	Player();
 

@@ -20,7 +20,8 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-NoiseChunk terrainGenerator = NoiseChunk();
+const int s = 10;
+NoiseChunk terrainGenerator[s][s];
 Player player = Player();
 Box b;
 
@@ -62,7 +63,7 @@ void display()
 
 	//glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0, 0, -50));
 
-	viewingMatrix = glm::lookAt(player.postion - glm::normalize(player.velocity) * 10.0f + glm::vec3(0, 4, 0), player.postion, glm::vec3(0, 1, 0));
+	viewingMatrix = glm::lookAt(player.position + player.localForward * 15.0f + player.localUp * 5.0f, player.position, glm::vec3(0, 1, 0));
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "LightPos"), 1, LightPos);
@@ -72,8 +73,19 @@ void display()
 
 	player.display(myShader, myBasicShader, &viewingMatrix, &ProjectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-	//b.render();
-	terrainGenerator.render();
+
+	glUseProgram(myBasicShader->handle());  // use the shader
+	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
+
+	b.render();
+	for (int i = 0; i < s; i++)
+	{
+		for (int j = 0; j < s; j++)
+		{
+			terrainGenerator[i][j].render();
+		}
+	}
 
 	glFlush();
 }
@@ -86,7 +98,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 	glViewport(0,0,width,height);						// Reset The Current Viewport
 
 	//Set the projection matrix
-	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 1.0f, 500.0f);
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 10.0f, 500.0f);
 }
 void init()
 {
@@ -107,8 +119,14 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}
-	terrainGenerator.genTerrain(myShader);
-	b.constructGeometry(myShader, -10, -10, -10, 10, 10, 10);
+	for (int i = 0; i < s; i++)
+	{
+		for (int j = 0; j < s; j++)
+		{
+			terrainGenerator[i][j].genTerrain(myBasicShader, glm::vec3(i, 0, j));
+		}
+	}
+	b.constructGeometry(myBasicShader, -10, -10, -10, 10, 10, 10);
 	player.init(&objLoader, myShader);
 	
 }

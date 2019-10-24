@@ -36,6 +36,11 @@ void App::printMatrix(const glm::mat4 & mat)
 	cout << mat[3][0] << ", " << mat[3][1] << ", " << mat[3][2] << ", " << mat[3][3] << "\n";
 }
 
+void App::printVec3(const glm::vec3 & vec)
+{
+	cout << vec.x << ", " << vec.y << ", " << vec.z << "\n";
+}
+
 glm::mat4 App::CloneMatrix(const glm::mat4 matrix)
 {
 	glm::mat4 copy = glm::mat4(matrix[0], matrix[1], matrix[2], matrix[3]);

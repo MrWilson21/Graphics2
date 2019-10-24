@@ -4,16 +4,28 @@
 class NoiseChunk
 {
 public:
-	static const int size = 64;
-	static const int height = 48;
+	static const int size = 16;
+	static const int height = 128;
 
-	int a = 5;
-	int b = 3;
+	float surfaceLevel = 0.5;
+	float ceilingLevel = 0.7;
+	float ceilingWeight = 1.0;
+	float floorLevel = 0.1;
+	float floorWeight = 1.0;
 
-	float surfaceLevel = 0;
+	bool createTerraces = true;
+	float terraceHeight = 0.2;
+	float terraceWeight = 1.0;
+	float minTerraceSurfaceLevel = 0.375;
+	float terraceIncrement = 0.2;
+
+	int octaves = 4;
+
+	float chunkScale = 3;
+	float chunkFreq = 1;
 
 	NoiseChunk();
-	void genTerrain(Shader* myShader);
+	void genTerrain(Shader* myShader, glm::vec3 offset);
 	void render();
 
 	unsigned int m_vaoID;		    // vertex array object
@@ -576,5 +588,9 @@ private:
 	};
 
 	glm::vec3 interpolateVerts(glm::vec4 v1, glm::vec4 v2);
+	glm::vec3 colourSelector(float y);
+	glm::vec3 offset;
+
+	Shader* myShader;
 };
 

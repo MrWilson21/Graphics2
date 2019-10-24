@@ -8,6 +8,7 @@ NoiseChunk::NoiseChunk()
 
 void NoiseChunk::render()
 {
+	glUseProgram(myShader->handle());
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
 
@@ -22,27 +23,57 @@ void NoiseChunk::render()
 
 }
 
-void NoiseChunk::genTerrain(Shader* myShader)
+void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 {
+	this->myShader = myShader;
+
 	float data[size][height][size];
 
 	float xFactor = 1.0f / (size - 1);
 	float zFactor = 1.0f / (size - 1);
 	float yFactor = 1.0f / (height - 1);
-	
+
 	for (int col = 0; col < size; col++) {
 		for (int layer = 0; layer < height; layer++) {
 			for (int row = 0; row < size; row++) {
 				float x = xFactor * col;
 				float y = yFactor * layer;
 				float z = zFactor * row;
-				float sum = 0.0f;
-				float freq = a;
-				float scale = b;
 
-				glm::vec3 p(x * freq, y * freq, z * freq);
-				float val = glm::perlin(p);
+				float val = 0;
+				for (int i = 1; i <= octaves; i++)
+				{
+					glm::vec3 p((x + offset.x) * (chunkFreq / i), (y + offset.y) * (chunkFreq / i) * height / size, (z + offset.z) * (chunkFreq / i));
+					float sum = (1.0332f + glm::perlin(p)) / 2.06778;
+					val += sum / pow(2, i);
+				}
+				//glm::vec3 p(x * (chunkFreq), y * (chunkFreq), z * (chunkFreq));
+				//val = (1.0332f + glm::perlin(p)) / 2.06778;
 
+				
+				if (createTerraces)
+				{
+					float a = fmod(y, terraceHeight) / terraceHeight;
+					//if (a < 0.5)
+					{
+						if (val > minTerraceSurfaceLevel + (terraceIncrement) * a && y < ceilingLevel)
+						{
+							val = surfaceLevel;
+						}
+					}
+
+					//val += (fmod(y, terraceHeight) - fmod(y, terraceHeight*2)) *  terraceWeight;
+				}
+
+				if (y > ceilingLevel)
+				{
+					val -= ((ceilingLevel - y) / (1.0 - ceilingLevel)) * ceilingWeight;
+				}
+				else if (y < floorLevel)
+				{
+					val -= ((floorLevel - y) / floorLevel) * floorWeight;
+				}
+				
 				data[col][layer][row] = val;
 			}
 		}
@@ -53,7 +84,6 @@ void NoiseChunk::genTerrain(Shader* myShader)
 	vector<unsigned int> triangles;
 	numOfVerts = 0;
 	numOfTris = 0;
-	bool a = false;
 	unsigned int vertIndexes[size][size][height];
 
 	for (int x = 0; x < size - 1; x++) {
@@ -78,19 +108,7 @@ void NoiseChunk::genTerrain(Shader* myShader)
 				if (cubeCorners[4].w < surfaceLevel) cubeIndex |= 16;
 				if (cubeCorners[5].w < surfaceLevel) cubeIndex |= 32;
 				if (cubeCorners[6].w < surfaceLevel) cubeIndex |= 64;
-				if (cubeCorners[7].w < surfaceLevel) cubeIndex |= 128;
-
-				if (!a)
-				{
-					for (int i = 0; i < 8; i++)
-					{
-						cout << "(" << cubeCorners[i].x << ", " << cubeCorners[i].y << ", " << cubeCorners[i].z << ", " << cubeCorners[0].w << ")\n";
-						//cout << cubeCorners[0].w << ")\n";
-					}
-					cout << "\n\n";
-					a = true;
-				}
-			
+				if (cubeCorners[7].w < surfaceLevel) cubeIndex |= 128;			
 
 				// Create triangles for current cube configuration
 				for (int i = 0; triangulation[cubeIndex][i] != -1; i += 3) {
@@ -106,43 +124,37 @@ void NoiseChunk::genTerrain(Shader* myShader)
 					int b2 = cornerIndexBFromEdge[triangulation[cubeIndex][i + 2]];
 
 					glm::vec3 vert = interpolateVerts(cubeCorners[a0], cubeCorners[b0]);
-					vertices.push_back(vert.x * b);
-					vertices.push_back(vert.y  * b);
-					vertices.push_back(vert.z  * b);
-					//colours.push_back(vert.y * (255 / height));
-					//colours.push_back(255 - vert.y * (255 / height));
-					//colours.push_back(255);
-					colours.push_back(0);
-					colours.push_back(255);
-					colours.push_back(240);
+					vertices.push_back((vert.x + (offset.x) * (size-1)) * chunkScale);
+					vertices.push_back((vert.y + (offset.y) * (size - 1)) * chunkScale);
+					vertices.push_back((vert.z + (offset.z) * (size - 1)) * chunkScale);
+					glm::vec3 colour = colourSelector(vert.y / height);
+					colours.push_back(colour.x);
+					colours.push_back(colour.y);
+					colours.push_back(colour.z);
 					numOfVerts += 1;
 
 					//cout << "(" << a0 << ", " << b0 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a1], cubeCorners[b1]);
-					vertices.push_back(vert.x  * b);
-					vertices.push_back(vert.y * b);
-					vertices.push_back(vert.z  * b);
-					//colours.push_back(vert.y * (255 / height));
-					//colours.push_back(255 - vert.y * (255 / height));
-					//colours.push_back(255);
-					colours.push_back(0);
-					colours.push_back(255);
-					colours.push_back(240);
+					vertices.push_back((vert.x + (offset.x) * (size - 1)) * chunkScale);
+					vertices.push_back((vert.y + (offset.y) * (size - 1)) * chunkScale);
+					vertices.push_back((vert.z + (offset.z) * (size - 1)) * chunkScale);
+					colour = colourSelector(vert.y / height);
+					colours.push_back(colour.x);
+					colours.push_back(colour.y);
+					colours.push_back(colour.z);
 					numOfVerts += 1;
 
 					//cout << "(" << a1 << ", " << b1 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					vert = interpolateVerts(cubeCorners[a2], cubeCorners[b2]);
-					vertices.push_back(vert.x * b);
-					vertices.push_back(vert.y * b);
-					vertices.push_back(vert.z * b);
-					//colours.push_back(vert.y * (255 / height));
-					//colours.push_back(255 - vert.y * (255 / height));
-					//colours.push_back(255);
-					colours.push_back(0);
-					colours.push_back(255);
-					colours.push_back(240);
+					vertices.push_back((vert.x + (offset.x) * (size - 1)) * chunkScale);
+					vertices.push_back((vert.y + (offset.y) * (size - 1)) * chunkScale);
+					vertices.push_back((vert.z + (offset.z) * (size - 1)) * chunkScale);
+					colour = colourSelector(vert.y / height);
+					colours.push_back(colour.x);
+					colours.push_back(colour.y);
+					colours.push_back(colour.z);
 					numOfVerts += 1;
 					//cout << "(" << a2 << ", " << b2 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\n";
 
@@ -159,10 +171,9 @@ void NoiseChunk::genTerrain(Shader* myShader)
 	verts = &vertices[0];
 	cols = &colours[0];
 	tInds = &triangles[0];
-
-	cout << numOfVerts << "\n";
-	cout << numOfTris << "\n";
 	
+	glUseProgram(myShader->handle());
+
 	// VAO allocation
 	glGenVertexArrays(1, &m_vaoID);
 
@@ -201,10 +212,17 @@ void NoiseChunk::genTerrain(Shader* myShader)
 }
 
 glm::vec3 NoiseChunk::interpolateVerts(glm::vec4 v1, glm::vec4 v2) {
-	//float t = (surfaceLevel - v1.w) / (v2.w - v1.w);
-	//return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
-	glm::vec3 pos = glm::vec3(glm::vec3(v1) + glm::vec3(v2));
-	return pos * 0.5f;
+	float t = (surfaceLevel - v1.w) / (v2.w - v1.w);
+	return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
+	//glm::vec3 pos = glm::vec3(glm::vec3(v1) + glm::vec3(v2));
+	//return pos * 0.5f;
+}
+
+glm::vec3 NoiseChunk::colourSelector(float y)
+{
+	float colourLevel = fmod(y, terraceHeight) / terraceHeight;
+	return glm::vec3(colourLevel, 1.0 - colourLevel, 0.9f);
+	//return glm::vec3(0.0, colourLevel, 0.0f);
 }
 
 
