@@ -17,12 +17,15 @@ public:
 	float terraceHeight = 0.2;
 	float terraceWeight = 1.0;
 	float minTerraceSurfaceLevel = 0.375;
-	float terraceIncrement = 0.2;
-
-	int octaves = 4;
+	float terraceIncrement = 1.0;
 
 	float chunkScale = 3;
-	float chunkFreq = 1;
+	float chunkFreq = 0.5;
+	float octave2Freq = 4;
+	float octave2Weight = 0.09;
+	float octave3Freq = 10;
+	float octave3Weight = 0.025;
+
 
 	NoiseChunk();
 	void genTerrain(Shader* myShader, glm::vec3 offset);
@@ -36,6 +39,7 @@ public:
 	int numOfTris;
 	float* verts;
 	float* cols;
+	float* norms;
 	unsigned int* tInds;
 
 private:

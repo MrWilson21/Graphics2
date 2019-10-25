@@ -143,6 +143,8 @@
     <None Include="glslfiles\basicTransformationsWithDisplacement.vert" />
     <None Include="glslfiles\displacement.frag" />
     <None Include="glslfiles\displacement.vert" />
+    <None Include="glslfiles\terrain.frag" />
+    <None Include="glslfiles\terrain.vert" />
     <None Include="libpng13.dll" />
     <None Include="nvImage.dll" />
     <None Include="nvImaged.dll" />

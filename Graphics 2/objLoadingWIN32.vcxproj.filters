@@ -181,6 +181,8 @@
     <None Include="glslfiles\displacement.vert" />
     <None Include="glslfiles\displacement.frag" />
     <None Include="Blender files\untitled.blend" />
+    <None Include="glslfiles\terrain.frag" />
+    <None Include="glslfiles\terrain.vert" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="nvImage.lib" />

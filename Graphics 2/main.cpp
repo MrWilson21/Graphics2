@@ -10,6 +10,7 @@
 
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
+Shader* terrainShader;
 
 double maxFrameTime = 0.05;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
 int maxFps = 200;
@@ -77,8 +78,11 @@ void display()
 	glUseProgram(myBasicShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-
 	b.render();
+
+	glUseProgram(terrainShader->handle());  // use the shader
+	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	for (int i = 0; i < s; i++)
 	{
 		for (int j = 0; j < s; j++)
@@ -119,11 +123,18 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}
+
+	terrainShader = new Shader;
+	if (!terrainShader->load("Terrain", "glslfiles/terrain.vert", "glslfiles/terrain.frag"))
+	{
+		cout << "failed to load shader" << endl;
+	}
+
 	for (int i = 0; i < s; i++)
 	{
 		for (int j = 0; j < s; j++)
 		{
-			terrainGenerator[i][j].genTerrain(myBasicShader, glm::vec3(i, 0, j));
+			terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
 		}
 	}
 	b.constructGeometry(myBasicShader, -10, -10, -10, 10, 10, 10);
