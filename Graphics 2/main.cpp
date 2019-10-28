@@ -12,7 +12,7 @@ Shader* myShader;  ///shader object
 Shader* myBasicShader;
 Shader* terrainShader;
 
-double maxFrameTime = 0.05;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
+double maxFrameTime = 0.5;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
 int maxFps = 200;
 steady_clock::time_point totalFrameTime = steady_clock::now();
 float timeScale = 1;
@@ -21,7 +21,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int s = 10;
+const int s = 30;
 NoiseChunk terrainGenerator[s][s];
 bool terrainGenStatus[s][s];
 bool terrainRenderStatus[s][s];
@@ -119,8 +119,9 @@ void reshape(int width, int height)		// Resize the OpenGL window
 }
 void init()
 {
-	glClearColor(1.0,1.0,1.0,0.0);						//sets the clear colour to yellow
-														//glClear(GL_COLOR_BUFFER_BIT) in the display function
+	SetThreadPriority(GetCurrentThread(), REALTIME_PRIORITY_CLASS);
+
+	glClearColor(1.0,1.0,1.0,0.0);						//sets the clear colour to yellow													//glClear(GL_COLOR_BUFFER_BIT) in the display function
 														//will clear the buffer to this colour
 	glEnable(GL_DEPTH_TEST);
 
@@ -142,8 +143,8 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}
-	
-	maxThreads = thread::hardware_concurrency();
+
+	maxThreads = thread::hardware_concurrency() * 16;
 
 	for (int i = 0; i < s; i++)
 	{
@@ -167,9 +168,17 @@ void update()
 
 void genNewChunk(int i, int j, bool* finished)
 {
+	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
 	terrainGenStatus[i][j] = true;
-	*finished = true;
+	//*finished = true;
+	for (int i = 0; i < threads.size(); i++)
+	{
+		if (threads[i].thread.get_id() == this_thread::get_id())
+		{
+			threads[i].finished = true;
+		}
+	}
 }
 
 void updateRenderStatus()
@@ -192,11 +201,12 @@ void updateRenderStatus()
 
 void updateThreads()
 {
-	if (threads.size() < maxThreads && chunkQueue.size() > 0)
+	cout << threads.size() << "\n";
+	while (threads.size() < maxThreads && chunkQueue.size() > 0)
 	{
 		glm::vec2 chunk = chunkQueue.back();
 		chunkQueue.pop_back();
-		App::terrainThread  t;
+		App::terrainThread t;
 		threads.push_back(std::move(t));
 		threads.back().thread = thread(genNewChunk, chunk.x, chunk.y, &(threads.back().finished));
 		//t.thread = thread(genNewChunk, chunk.x, chunk.y, &(t.finished));
@@ -207,6 +217,7 @@ void updateThreads()
 	{
 		if (threads[i].finished)
 		{
+			//cout << "delete\n";
 			threads[i].thread.join();
 			threads.erase(threads.begin() + i);
 		}

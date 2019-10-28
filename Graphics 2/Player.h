@@ -13,10 +13,11 @@ private:
 	float Material_Specular[4] = { 0.9f,0.9f,0.8f,1.0f };
 	float Material_Shininess = 50;
 
-	float spinForce = 2.5;
+	float spinForce = 250;
 	glm::vec3 rotationForce;
 	float linearRotationDamping = 4;
-	float staticRotationDamping = 0.1;
+	float staticRotationDamping = 0.5;
+	float xCorrectionForce = 300;
 
 	float accelerationForce = 30;
 	float linearDrag = 1;

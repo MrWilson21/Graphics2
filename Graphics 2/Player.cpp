@@ -156,7 +156,7 @@ void Player::move()
 		angle = -1.0 - abs(dist) * 2;
 	}*/
 
-	rotationForce.x += dist * App::deltaTime * 3;
+	rotationForce.x += dist * App::deltaTime * xCorrectionForce;
 
 	//cout << dist << "\n";
 
@@ -166,15 +166,15 @@ void Player::move()
 	//cout << axis.x << "," << axis.y << "," << axis.z << ", " << angle << "\n";
 	
 	//rotation about the local x axis
-	newRotation = glm::angleAxis(rotationForce.x, glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
+	newRotation = glm::angleAxis(rotationForce.x * (float)App::deltaTime, glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
 	matrixX = glm::mat4_cast(newRotation) * objectRotation;
 
 	//rotation about the local y axis
-	newRotation = glm::angleAxis(rotationForce.y, glm::vec3(matrixX[1][0], matrixX[1][1], matrixX[1][2]));
+	newRotation = glm::angleAxis(rotationForce.y * (float)App::deltaTime, glm::vec3(matrixX[1][0], matrixX[1][1], matrixX[1][2]));
 	matrixXY = glm::mat4_cast(newRotation) * matrixX;
 
 	//rotation about the local z axis
-	newRotation = glm::angleAxis(rotationForce.z, glm::vec3(matrixXY[2][0], matrixXY[2][1], matrixXY[2][2]));
+	newRotation = glm::angleAxis(rotationForce.z * (float)App::deltaTime, glm::vec3(matrixXY[2][0], matrixXY[2][1], matrixXY[2][2]));
 	objectRotation = glm::mat4_cast(newRotation) * matrixXY;
 
 	//newRotation = glm::angleAxis((float)(glm::degrees(angle) * App::deltaTime * 0.1), glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
