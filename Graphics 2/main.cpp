@@ -21,7 +21,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int s = 30;
+const int s = 50;
 NoiseChunk terrainGenerator[s][s];
 bool terrainGenStatus[s][s];
 bool terrainRenderStatus[s][s];
@@ -115,7 +115,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 	glViewport(0,0,width,height);						// Reset The Current Viewport
 
 	//Set the projection matrix
-	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 10.0f, 500.0f);
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 10.0f, 5000.0f);
 }
 void init()
 {
@@ -144,14 +144,13 @@ void init()
 		cout << "failed to load shader" << endl;
 	}
 
-	maxThreads = thread::hardware_concurrency() * 16;
+	maxThreads = thread::hardware_concurrency() * 4;
 
 	for (int i = 0; i < s; i++)
 	{
 		for (int j = 0; j < s; j++)
 		{
 			chunkQueue.push_back(glm::vec2(i, j));
-			//threads[i][j] = thread(genNewChunk, i, j);
 		}
 	}
 	b.constructGeometry(myBasicShader, -10, -10, -10, 10, 10, 10);
@@ -168,10 +167,8 @@ void update()
 
 void genNewChunk(int i, int j, bool* finished)
 {
-	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
 	terrainGenStatus[i][j] = true;
-	//*finished = true;
 	for (int i = 0; i < threads.size(); i++)
 	{
 		if (threads[i].thread.get_id() == this_thread::get_id())
@@ -201,7 +198,6 @@ void updateRenderStatus()
 
 void updateThreads()
 {
-	cout << threads.size() << "\n";
 	while (threads.size() < maxThreads && chunkQueue.size() > 0)
 	{
 		glm::vec2 chunk = chunkQueue.back();
@@ -209,15 +205,12 @@ void updateThreads()
 		App::terrainThread t;
 		threads.push_back(std::move(t));
 		threads.back().thread = thread(genNewChunk, chunk.x, chunk.y, &(threads.back().finished));
-		//t.thread = thread(genNewChunk, chunk.x, chunk.y, &(t.finished));
-		//threads.push_back(std::move(t));
 	}
 
 	for (int i = 0; i < threads.size(); i++)
 	{
 		if (threads[i].finished)
 		{
-			//cout << "delete\n";
 			threads[i].thread.join();
 			threads.erase(threads.begin() + i);
 		}

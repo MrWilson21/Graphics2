@@ -89,6 +89,7 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 				data[col][layer][row] = val;
 			}
 		}
+		std::this_thread::sleep_for(std::chrono::nanoseconds{ 0 });
 	}
 
 	numOfVerts = 0;
@@ -197,6 +198,7 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 				}
 			}
 		}
+		std::this_thread::sleep_for(std::chrono::nanoseconds{ 0 });
 	}
 }
 
