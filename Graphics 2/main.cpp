@@ -23,6 +23,13 @@ float temp = 0.002f;
 	
 const int s = 10;
 NoiseChunk terrainGenerator[s][s];
+bool terrainGenStatus[s][s];
+bool terrainRenderStatus[s][s];
+int maxThreads;
+int currentThreads = 0;
+vector <App::terrainThread> threads;
+vector<glm::vec2> chunkQueue;
+
 Player player = Player();
 Box b;
 
@@ -43,6 +50,9 @@ void display();				//called in winmain to draw everything to the screen
 void reshape(int width, int height);				//called when the window is resized
 void init();				//called in winmain when the program starts.
 void update();				//called in winmain to update variables
+void genNewChunk(int i, int j, bool* finished);
+void updateRenderStatus();
+void updateThreads();
 
 /*************    START OF OPENGL FUNCTIONS   ****************/
 void display()									
@@ -87,7 +97,10 @@ void display()
 	{
 		for (int j = 0; j < s; j++)
 		{
-			terrainGenerator[i][j].render();
+			if (terrainRenderStatus[i][j])
+			{
+				terrainGenerator[i][j].render();
+			}			
 		}
 	}
 
@@ -129,12 +142,15 @@ void init()
 	{
 		cout << "failed to load shader" << endl;
 	}
+	
+	maxThreads = thread::hardware_concurrency();
 
 	for (int i = 0; i < s; i++)
 	{
 		for (int j = 0; j < s; j++)
 		{
-			terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
+			chunkQueue.push_back(glm::vec2(i, j));
+			//threads[i][j] = thread(genNewChunk, i, j);
 		}
 	}
 	b.constructGeometry(myBasicShader, -10, -10, -10, 10, 10, 10);
@@ -144,7 +160,57 @@ void init()
 
 void update()
 {
+	updateThreads();
+	updateRenderStatus();
 	player.update();
+}
+
+void genNewChunk(int i, int j, bool* finished)
+{
+	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
+	terrainGenStatus[i][j] = true;
+	*finished = true;
+}
+
+void updateRenderStatus()
+{
+	for (int i = 0; i < s; i++)
+	{
+		for (int j = 0; j < s; j++)
+		{
+			if (terrainGenStatus[i][j])
+			{
+				if (!terrainRenderStatus[i][j])
+				{
+					terrainGenerator[i][j].applyTerrain();
+					terrainRenderStatus[i][j] = true;
+				}
+			}
+		}
+	}
+}
+
+void updateThreads()
+{
+	if (threads.size() < maxThreads && chunkQueue.size() > 0)
+	{
+		glm::vec2 chunk = chunkQueue.back();
+		chunkQueue.pop_back();
+		App::terrainThread  t;
+		threads.push_back(std::move(t));
+		threads.back().thread = thread(genNewChunk, chunk.x, chunk.y, &(threads.back().finished));
+		//t.thread = thread(genNewChunk, chunk.x, chunk.y, &(t.finished));
+		//threads.push_back(std::move(t));
+	}
+
+	for (int i = 0; i < threads.size(); i++)
+	{
+		if (threads[i].finished)
+		{
+			threads[i].thread.join();
+			threads.erase(threads.begin() + i);
+		}
+	}
 }
 /**************** END OPENGL FUNCTIONS *************************/
 
@@ -228,7 +294,12 @@ int WINAPI WinMain(	HINSTANCE	hInstance,			// Instance
 		}
 	}
 
-	
+	//Kill remaining threads
+	for(int i = 0; i < threads.size(); i++)
+	{
+		threads[i].thread.join();
+	}
+
 	// Shutdown
 	KillGLWindow();									// Kill The Window
 	return (int)(msg.wParam);						// Exit The Program

@@ -23,6 +23,7 @@
 #include <algorithm>
 #include <thread> 
 #include <stdlib.h>
+#include <unordered_map>
 
 using namespace std;
 using namespace std::chrono;
@@ -46,5 +47,11 @@ public:
 	static void printVec3(const glm::vec3 & vec);
 
 	static glm::mat4 CloneMatrix(const glm::mat4 matrix);
+
+	struct terrainThread
+	{
+		thread thread;
+		bool finished = false;
+	};
 };
 

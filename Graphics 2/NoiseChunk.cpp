@@ -91,10 +91,6 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 		}
 	}
 
-	vector<float> vertices;
-	vector<float> colours;
-	vector<float> normals;
-	vector<unsigned int> triangles;
 	numOfVerts = 0;
 	numOfTris = 0;
 	unsigned int vertIndexes[size][size][height];
@@ -202,11 +198,15 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 			}
 		}
 	}
+}
+
+void NoiseChunk::applyTerrain()
+{
 	verts = &vertices[0];
 	cols = &colours[0];
 	tInds = &triangles[0];
 	norms = &normals[0];
-	
+
 	glUseProgram(myShader->handle());
 
 	// VAO allocation
@@ -246,8 +246,6 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);
-
-	//delete[] data;
 }
 
 glm::vec3 NoiseChunk::interpolateVerts(glm::vec4 v1, glm::vec4 v2) {
