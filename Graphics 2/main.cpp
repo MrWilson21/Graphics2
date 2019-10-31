@@ -21,14 +21,18 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int s = 50;
-NoiseChunk terrainGenerator[s][s];
-bool terrainGenStatus[s][s];
-bool terrainRenderStatus[s][s];
+const int renderDist = 1;
+const int chunksAmount = renderDist * 2 + 1;
+NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
+bool terrainGenStatus[chunksAmount][chunksAmount];
+bool terrainRenderStatus[chunksAmount][chunksAmount];
 int maxThreads;
 int currentThreads = 0;
-vector <App::terrainThread> threads;
+App::terrainThread threads[chunksAmount][chunksAmount];
 vector<glm::vec2> chunkQueue;
+glm::vec3 chunkOffset = glm::vec3(renderDist + 0.5f, 1, renderDist + 0.5f);
+float chunkHalfSize = ((NoiseChunk::size - 1.0f) * NoiseChunk::chunkScale / 2.0f);
+glm::ivec2 oldStartIndex = glm::ivec2(0, 0);
 
 Player player = Player();
 Box b;
@@ -53,6 +57,7 @@ void update();				//called in winmain to update variables
 void genNewChunk(int i, int j, bool* finished);
 void updateRenderStatus();
 void updateThreads();
+void getNewChunks();
 
 /*************    START OF OPENGL FUNCTIONS   ****************/
 void display()									
@@ -93,9 +98,9 @@ void display()
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-	for (int i = 0; i < s; i++)
+	for (int i = 0; i < chunksAmount; i++)
 	{
-		for (int j = 0; j < s; j++)
+		for (int j = 0; j < chunksAmount; j++)
 		{
 			if (terrainRenderStatus[i][j])
 			{
@@ -144,22 +149,23 @@ void init()
 		cout << "failed to load shader" << endl;
 	}
 
-	maxThreads = thread::hardware_concurrency() * 4;
+	maxThreads = thread::hardware_concurrency();
 
-	for (int i = 0; i < s; i++)
+	for (int i = 0; i < chunksAmount; i++)
 	{
-		for (int j = 0; j < s; j++)
+		for (int j = 0; j < chunksAmount; j++)
 		{
 			chunkQueue.push_back(glm::vec2(i, j));
 		}
 	}
-	b.constructGeometry(myBasicShader, -10, -10, -10, 10, 10, 10);
+	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
 	player.init(&objLoader, myShader);
 	
 }
 
 void update()
 {
+	getNewChunks();
 	updateThreads();
 	updateRenderStatus();
 	player.update();
@@ -167,7 +173,7 @@ void update()
 
 void genNewChunk(int i, int j, bool* finished)
 {
-	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
+	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j) - chunkOffset);
 	terrainGenStatus[i][j] = true;
 	for (int i = 0; i < threads.size(); i++)
 	{
@@ -180,9 +186,9 @@ void genNewChunk(int i, int j, bool* finished)
 
 void updateRenderStatus()
 {
-	for (int i = 0; i < s; i++)
+	for (int i = 0; i < chunksAmount; i++)
 	{
-		for (int j = 0; j < s; j++)
+		for (int j = 0; j < chunksAmount; j++)
 		{
 			if (terrainGenStatus[i][j])
 			{
@@ -213,6 +219,19 @@ void updateThreads()
 		{
 			threads[i].thread.join();
 			threads.erase(threads.begin() + i);
+		}
+	}
+}
+
+void getNewChunks()
+{
+	glm::ivec2 playerIndex = glm::ivec2((int)(player.position.x / chunkHalfSize), (int)(player.position.z / chunkHalfSize));
+	glm::ivec2 startIndex = glm::ivec2((chunksAmount + playerIndex.x) % chunksAmount, (chunksAmount + playerIndex.y) % chunksAmount);
+	if (startIndex.x > oldStartIndex.x)
+	{
+		for (int i = 0; i < chunksAmount; i++)
+		{
+
 		}
 	}
 }
@@ -528,7 +547,7 @@ bool CreateGLWindow(char* title, int width, int height)
 		wglMakeCurrent(hDC, hRC);
 	}
 	else
-	{	//It's not possible to make a GL 3.x context. Use the old style context (GL 2.1 and before)
+	{	//It'renderDist not possible to make a GL 3.x context. Use the old style context (GL 2.1 and before)
 		hRC = tempContext;
 		cout << " not possible to make context "<< endl;
 	}
