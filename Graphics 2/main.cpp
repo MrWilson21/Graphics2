@@ -21,14 +21,18 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int s = 50;
-NoiseChunk terrainGenerator[s][s];
-bool terrainGenStatus[s][s];
-bool terrainRenderStatus[s][s];
+const int renderDist = 5;
+const int chunksAmount = renderDist * 2 + 1;
+NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
+bool terrainGenStatus[chunksAmount][chunksAmount];
+bool terrainRenderStatus[chunksAmount][chunksAmount];
 int maxThreads;
 int currentThreads = 0;
 vector <App::terrainThread> threads;
 vector<glm::vec2> chunkQueue;
+
+glm::vec3 chunkOffset = glm::vec3(renderDist + 0.5f, 1, renderDist + 0.5f);
+float chunkHalfSize = ((NoiseChunk::size - 1.0f) * NoiseChunk::chunkScale / 2.0f);
 
 Player player = Player();
 Box b;
@@ -93,9 +97,9 @@ void display()
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-	for (int i = 0; i < s; i++)
+	for (int i = 0; i < chunksAmount; i++)
 	{
-		for (int j = 0; j < s; j++)
+		for (int j = 0; j < chunksAmount; j++)
 		{
 			if (terrainRenderStatus[i][j])
 			{
@@ -120,6 +124,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 void init()
 {
 	SetThreadPriority(GetCurrentThread(), REALTIME_PRIORITY_CLASS);
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
 	glClearColor(1.0,1.0,1.0,0.0);						//sets the clear colour to yellow													//glClear(GL_COLOR_BUFFER_BIT) in the display function
 														//will clear the buffer to this colour
@@ -144,16 +149,28 @@ void init()
 		cout << "failed to load shader" << endl;
 	}
 
-	maxThreads = thread::hardware_concurrency() * 4;
+	maxThreads = thread::hardware_concurrency();
 
-	for (int i = 0; i < s; i++)
-	{
-		for (int j = 0; j < s; j++)
-		{
-			chunkQueue.push_back(glm::vec2(i, j));
+	int x, y, dx, dy;
+	x = y = dx = 0;
+	dy = -1;
+	int t = std::max(chunksAmount, chunksAmount);
+	int maxI = t * t;
+	for (int i = 0; i < maxI; i++) {
+		if ((-chunksAmount / 2 <= x) && (x <= chunksAmount / 2) && (-chunksAmount / 2 <= y) && (y <= chunksAmount / 2)) {
+			chunkQueue.push_back(glm::vec2(x + renderDist, y + renderDist));
 		}
+		if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y))) {
+			t = dx;
+			dx = -dy;
+			dy = t;
+		}
+		x += dx;
+		y += dy;
 	}
-	b.constructGeometry(myBasicShader, -10, -10, -10, 10, 10, 10);
+	reverse(chunkQueue.begin(), chunkQueue.end());
+
+	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
 	player.init(&objLoader, myShader);
 	
 }
@@ -167,7 +184,8 @@ void update()
 
 void genNewChunk(int i, int j, bool* finished)
 {
-	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j));
+	//SetThreadAffinityMask(GetCurrentThread(), 1 << 12);
+	terrainGenerator[i][j].genTerrain(terrainShader, glm::vec3(i, 0, j) - chunkOffset);
 	terrainGenStatus[i][j] = true;
 	for (int i = 0; i < threads.size(); i++)
 	{
@@ -180,9 +198,9 @@ void genNewChunk(int i, int j, bool* finished)
 
 void updateRenderStatus()
 {
-	for (int i = 0; i < s; i++)
+	for (int i = 0; i < chunksAmount; i++)
 	{
-		for (int j = 0; j < s; j++)
+		for (int j = 0; j < chunksAmount; j++)
 		{
 			if (terrainGenStatus[i][j])
 			{

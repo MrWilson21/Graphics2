@@ -19,7 +19,7 @@ public:
 	float minTerraceSurfaceLevel = 0.375;
 	float terraceIncrement = 1.0;
 
-	float chunkScale = 3;
+	static const int chunkScale = 3;
 	float chunkFreq = 0.5;
 	float octave2Freq = 4;
 	float octave2Weight = 0.09;
