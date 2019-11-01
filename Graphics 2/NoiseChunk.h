@@ -14,7 +14,7 @@ public:
 	float floorWeight = 1.0;
 
 	bool createTerraces = true;
-	float terraceHeight = 0.2;
+	static float terraceHeight;
 	float terraceWeight = 1.0;
 	float minTerraceSurfaceLevel = 0.375;
 	float terraceIncrement = 1.0;
@@ -50,7 +50,7 @@ private:
 	vector<unsigned int> triangles;
 
 	glm::vec3 interpolateVerts(glm::vec4 v1, glm::vec4 v2);
-	glm::vec3 colourSelector(float y);
+	glm::vec3 colourSelector(float y, glm::vec3 normal);
 	glm::vec3 offset;
 
 	Shader* myShader;

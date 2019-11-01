@@ -14,7 +14,7 @@ void Box::render()
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 	glDrawElements(GL_TRIANGLES, numOfTris*3, GL_UNSIGNED_INT, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
@@ -38,15 +38,15 @@ void Box::constructGeometry(Shader* myShader, float minx, float miny, float minz
 	verts[18] =  maxx;   verts[19] =  maxy;  verts[20] = maxz;
 	verts[21] =  maxx;   verts[22] = miny;  verts[23] = maxz;
 
-	cols[0] = 0.0;   cols[ 1] = 0.0;  cols[ 2] = 0.0;
-	cols[3] = 0.0;   cols[ 4] = 1.0;  cols[ 5] = 0.0;
-	cols[6] = 0.0;   cols[ 7] = 0.0;  cols[ 8] = 1.0;
-	cols[9] = 1.0;   cols[10] = 1.0;  cols[11] = 1.0;
+	cols[0] = 0.0;   cols[ 1] = 1.0;  cols[ 2] = 1.0;
+	cols[3] = 0.0;   cols[ 4] = 1.0;  cols[ 5] = 1.0;
+	cols[6] = 0.0;   cols[ 7] = 1.0;  cols[ 8] = 1.0;
+	cols[9] = 0.0;   cols[10] = 1.0;  cols[11] = 1.0;
 
-	cols[12] = 1.0;   cols[13] = 0.0;  cols[14] = 0.0;
-	cols[15] = 0.0;   cols[16] = 1.0;  cols[17] = 0.0;
-	cols[18] = 0.0;   cols[19] = 0.0;  cols[20] = 1.0;
-	cols[21] = 1.0;   cols[22] = 1.0;  cols[23] = 0.0;
+	cols[12] = 0.0;   cols[13] = 1.0;  cols[14] = 1.0;
+	cols[15] = 0.0;   cols[16] = 1.0;  cols[17] = 1.0;
+	cols[18] = 0.0;   cols[19] = 1.0;  cols[20] = 1.0;
+	cols[21] = 0.0;   cols[22] = 1.0;  cols[23] = 1.0;
 	
 	tris[0]=0; tris[1]=1; tris[2]=2;
 	tris[3]=0; tris[4]=2; tris[5]=3;

@@ -1,5 +1,7 @@
 #include "NoiseChunk.h"
 
+float NoiseChunk::terraceHeight = 0.2f;
+
 NoiseChunk::NoiseChunk()
 {
 }
@@ -137,7 +139,6 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 					vertices.push_back((vert.x + (offset.x) * (size-1)) * chunkScale);
 					vertices.push_back((vert.y + (offset.y) * (size - 1)) * chunkScale);
 					vertices.push_back((vert.z + (offset.z) * (size - 1)) * chunkScale);
-					glm::vec3 colour = colourSelector(vert.y / height);
 					//colours.push_back(colour.x);
 					//colours.push_back(colour.y);
 					//colours.push_back(colour.z);
@@ -149,7 +150,6 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 					vertices.push_back((vert1.x + (offset.x) * (size - 1)) * chunkScale);
 					vertices.push_back((vert1.y + (offset.y) * (size - 1)) * chunkScale);
 					vertices.push_back((vert1.z + (offset.z) * (size - 1)) * chunkScale);
-					colour += colourSelector(vert1.y / height);
 					//colours.push_back(colour.x);
 					//colours.push_back(colour.y);
 					//colours.push_back(colour.z);
@@ -161,7 +161,6 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 					vertices.push_back((vert2.x + (offset.x) * (size - 1)) * chunkScale);
 					vertices.push_back((vert2.y + (offset.y) * (size - 1)) * chunkScale);
 					vertices.push_back((vert2.z + (offset.z) * (size - 1)) * chunkScale);
-					colour += colourSelector(vert2.y / height);
 					//colours.push_back(colour.x);
 					//colours.push_back(colour.y);
 					//colours.push_back(colour.z);
@@ -183,6 +182,10 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 					normals.push_back(normal.x);
 					normals.push_back(normal.y);
 					normals.push_back(normal.z);
+
+					glm::vec3 colour = colourSelector(vert.y / height, normal);
+					colour += colourSelector(vert1.y / height, normal);
+					colour += colourSelector(vert2.y / height, normal);
 
 					//cout << x << y << z << "\n";
 					colour = colour / 3.0f;
@@ -217,7 +220,7 @@ void NoiseChunk::applyTerrain()
 	// First VAO setup
 	glBindVertexArray(m_vaoID);
 
-	glGenBuffers(2, m_vboID);
+	glGenBuffers(3, m_vboID);
 
 	glBindBuffer(GL_ARRAY_BUFFER, m_vboID[0]);
 	//initialises data storage of vertex buffer object
@@ -253,19 +256,21 @@ void NoiseChunk::applyTerrain()
 glm::vec3 NoiseChunk::interpolateVerts(glm::vec4 v1, glm::vec4 v2) {
 	float t = (surfaceLevel - v1.w) / (v2.w - v1.w);
 	return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
-	//glm::vec3 pos = glm::vec3(glm::vec3(v1) + glm::vec3(v2));
-	//return pos * 0.5f;
+	glm::vec3 pos = glm::vec3(glm::vec3(v1) + glm::vec3(v2));
+	return pos * 0.5f;
 }
 
-glm::vec3 NoiseChunk::colourSelector(float y)
+glm::vec3 NoiseChunk::colourSelector(float y, glm::vec3 normal)
 {
-	float colourLevel = fmod(y, terraceHeight) / terraceHeight;
-	if (colourLevel > 0.95)
+	float colourLevel = fmod(y + 0.001, terraceHeight) / (terraceHeight);
+	if ((colourLevel > 0.95 || colourLevel < 0.03) && glm::dot(normal, glm::vec3(0, 1, 0)) > 0.8)
 	{
-		return glm::vec3(1.0, 0.0, 0.0);
+		return glm::vec3(0.85, 0.73, 0.37);
 	}
-	return glm::vec3(colourLevel, 1.0 - colourLevel, 0.9f);
-	//return glm::vec3(0.0, colourLevel, 0.0f);
+	colourLevel = fmod(y + 0.002, terraceHeight) / (terraceHeight);
+	//return glm::vec3(0.0, 1;.0, 0.0);
+	colourLevel = 1.0 - colourLevel;
+	return glm::vec3(1.0 - colourLevel, colourLevel, 0.8f + (colourLevel * 0.2 - 0.2f));
 }
 
 

@@ -36,6 +36,7 @@ float chunkHalfSize = ((NoiseChunk::size - 1.0f) * NoiseChunk::chunkScale / 2.0f
 
 Player player = Player();
 Box b;
+Box b2;
 
 OBJLoader objLoader;
 ///END MODEL LOADING
@@ -79,6 +80,7 @@ void display()
 	//glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0, 0, -50));
 
 	viewingMatrix = glm::lookAt(player.position + player.localForward * 15.0f + player.localUp * 5.0f, player.position, glm::vec3(0, 1, 0));
+	glm::vec3 cameraPos = player.position + player.localForward * 15.0f + player.localUp * 5.0f;
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "LightPos"), 1, LightPos);
@@ -97,6 +99,9 @@ void display()
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
+	glUniform1f(glGetUniformLocation(terrainShader->handle(), "terraceHeight"), NoiseChunk::terraceHeight);
+	glUniform3fv(glGetUniformLocation(terrainShader->handle(), "cameraPos"), 1, &cameraPos[0]);
+	b2.render();
 	for (int i = 0; i < chunksAmount; i++)
 	{
 		for (int j = 0; j < chunksAmount; j++)
@@ -126,7 +131,9 @@ void init()
 	SetThreadPriority(GetCurrentThread(), REALTIME_PRIORITY_CLASS);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 
-	glClearColor(1.0,1.0,1.0,0.0);						//sets the clear colour to yellow													//glClear(GL_COLOR_BUFFER_BIT) in the display function
+	glClearColor(0.2, 0.4, 0.65,0.0);						//sets the clear colour to yellow	
+	glClearColor(0, 0, 0, 0.0);
+															//glClear(GL_COLOR_BUFFER_BIT) in the display function
 														//will clear the buffer to this colour
 	glEnable(GL_DEPTH_TEST);
 
@@ -171,6 +178,7 @@ void init()
 	reverse(chunkQueue.begin(), chunkQueue.end());
 
 	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
+	b2.constructGeometry(terrainShader, -3000, -3000, -3000, 3000, 3000, 3000);
 	player.init(&objLoader, myShader);
 	
 }
