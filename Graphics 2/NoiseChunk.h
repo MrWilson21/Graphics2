@@ -19,7 +19,7 @@ public:
 	float minTerraceSurfaceLevel = 0.375;
 	float terraceIncrement = 1.0;
 
-	static const int chunkScale = 3;
+	float chunkScale = 3;
 	float chunkFreq = 0.5;
 	float octave2Freq = 4;
 	float octave2Weight = 0.09;
@@ -51,7 +51,7 @@ private:
 
 	glm::vec3 interpolateVerts(glm::vec4 v1, glm::vec4 v2);
 	glm::vec3 colourSelector(float y);
-	glm::vec3 chunkOffset;
+	glm::vec3 offset;
 
 	Shader* myShader;
 

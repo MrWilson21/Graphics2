@@ -9,7 +9,7 @@ void NoiseChunk::render()
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
 
-	if (App::keys[VK_RETURN] && (int)(chunkOffset.x + 0.5f) % 2 == 0 ^ abs((int)(chunkOffset.z + 0.5f)) % 2 == 1)
+	if (App::keys[VK_RETURN])
 	{
 		glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 	}
@@ -31,8 +31,6 @@ void NoiseChunk::render()
 void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 {
 	this->myShader = myShader;
-
-	chunkOffset = offset;
 
 	float data[size][height][size];
 
