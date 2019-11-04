@@ -14,6 +14,8 @@ Shader* myShader;  ///shader object
 Shader* myBasicShader;
 Shader* terrainShader;
 Shader* skyboxShader;
+Shader* waterShader;
+Shader* waveShader;
 
 double maxFrameTime = 0.5;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
 int maxFps = 200;
@@ -100,7 +102,7 @@ void display()
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	//b.render();
-	//w.render();
+	w.render(viewingMatrix, ProjectionMatrix);
 
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
@@ -171,6 +173,18 @@ void init()
 		cout << "failed to load shader" << endl;
 	}
 
+	waterShader = new Shader;
+	if (!waterShader->load("water", "glslfiles/water.vert", "glslfiles/water.frag"))
+	{
+		cout << "failed to load shader" << endl;
+	}
+
+	waveShader = new Shader;
+	if (!waveShader->load("wave", "glslfiles/wave.vert", "glslfiles/wave.frag"))
+	{
+		cout << "failed to load shader" << endl;
+	}
+
 	maxThreads = thread::hardware_concurrency();
 
 	int x, y, dx, dy;
@@ -180,7 +194,7 @@ void init()
 	int maxI = t * t;
 	for (int i = 0; i < maxI; i++) {
 		if ((-chunksAmount / 2 <= x) && (x <= chunksAmount / 2) && (-chunksAmount / 2 <= y) && (y <= chunksAmount / 2)) {
-			chunkQueue.push_back(glm::vec2(x + renderDist, y + renderDist));
+			//chunkQueue.push_back(glm::vec2(x + renderDist, y + renderDist));
 		}
 		if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y))) {
 			t = dx;
@@ -191,11 +205,11 @@ void init()
 		y += dy;
 	}
 	reverse(chunkQueue.begin(), chunkQueue.end());
-
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
-	b2.constructGeometry(terrainShader, -10000, -10000, -10000, 10000, 10000, 10000);
+	b2.constructGeometry(waterShader, -10000, -10000, -10000, 10000, 128, 10000);
 	player.init(&objLoader, myShader);
-	//w.constructGeometry(myBasicShader, -200, -200, 200, 200, 128);
+	w.constructGeometry(waveShader, -500, -500, 500, 500, 128);
 	skybox.constructGeometry(skyboxShader);
 	
 }

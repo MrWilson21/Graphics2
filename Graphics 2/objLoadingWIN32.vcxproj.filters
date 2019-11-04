@@ -200,6 +200,10 @@
     <None Include="glslfiles\terrain.vert" />
     <None Include="glslfiles\skybox.vert" />
     <None Include="glslfiles\skybox.frag" />
+    <None Include="glslfiles\water.vert" />
+    <None Include="glslfiles\water.frag" />
+    <None Include="glslfiles\wave.vert" />
+    <None Include="glslfiles\wave.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="nvImage.lib" />
@@ -241,6 +245,24 @@
       <Filter>Resource Files</Filter>
     </Image>
     <Image Include="Images\right.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\back.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\bottom.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\front.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\left.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\right.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\top.png">
       <Filter>Resource Files</Filter>
     </Image>
   </ItemGroup>

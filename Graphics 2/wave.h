@@ -8,7 +8,7 @@ class Wave
 {
 private:
 
-	static const int size = 32;
+	static const int size = 500;
 
 	static const int NumberOfVertexCoords = size * size * 3;
 	static const int numberOfTris = (size - 1) * (size - 1) * 2;
@@ -16,14 +16,19 @@ private:
 
 	float dim;
 	unsigned int m_vaoID;		    // vertex array object
-	unsigned int m_vboID[1];		// two VBOs - used for colours and vertex data
+	unsigned int m_vboID[2];		// two VBOs - used for colours and vertex data
 	GLuint ibo;                     //identifier for the triangle indices
 
 	float verts[NumberOfVertexCoords];
 	unsigned int tris[NumberOfTriangleIndices];
+
+	Shader* myShader;
+
+	float time = 0;
+
 public:
 	Wave();
 	void constructGeometry(Shader* myShader, float minx, float minz, float maxx, float maxz, float y);
-	void render();
+	void render(glm::mat4 viewMatrix, glm::mat4 projection);
 };
 

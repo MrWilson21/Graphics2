@@ -152,6 +152,10 @@
     <None Include="glslfiles\skybox.vert" />
     <None Include="glslfiles\terrain.frag" />
     <None Include="glslfiles\terrain.vert" />
+    <None Include="glslfiles\water.frag" />
+    <None Include="glslfiles\water.vert" />
+    <None Include="glslfiles\wave.frag" />
+    <None Include="glslfiles\wave.vert" />
     <None Include="libpng13.dll" />
     <None Include="nvImage.dll" />
     <None Include="nvImaged.dll" />
@@ -171,11 +175,17 @@
     <Image Include="..\..\..\..\Downloads\skybox\skybox\right.jpg" />
     <Image Include="..\..\..\..\Downloads\skybox\skybox\top.jpg" />
     <Image Include="Images\back.jpg" />
+    <Image Include="Images\back.png" />
     <Image Include="Images\bottom.jpg" />
+    <Image Include="Images\bottom.png" />
     <Image Include="Images\front.jpg" />
+    <Image Include="Images\front.png" />
     <Image Include="Images\left.jpg" />
+    <Image Include="Images\left.png" />
     <Image Include="Images\right.jpg" />
+    <Image Include="Images\right.png" />
     <Image Include="Images\top.jpg" />
+    <Image Include="Images\top.png" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="objLoadingWIN32.rc" />

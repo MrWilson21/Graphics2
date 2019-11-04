@@ -7,14 +7,56 @@ Wave::Wave()
 	dim = 1.0;
 }
 
-void Wave::render()
+void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection)
 {
+	glUseProgram(myShader->handle());
+
+	glUniform1f(glGetUniformLocation(myShader->handle(), "waterHeight"), 128);
+	glUniform1f(glGetUniformLocation(myShader->handle(), "numWaves"), 4);
+	glUniform1i(glGetUniformLocation(myShader->handle(), "envMap"), 0);
+	
+	float amp[8];
+	for (int i = 0; i < 8; i++)
+	{
+		amp[i] = 0.5f / (i + 1);
+	}
+	glUniform1fv(glGetUniformLocation(myShader->handle(), "amplitude"), 8, &amp[0]);
+
+	float wl[8];
+	for (int i = 0; i < 8; i++)
+	{
+		wl[i] = 8 * 3.14f / (i + 1);
+	}
+	glUniform1fv(glGetUniformLocation(myShader->handle(), "wavelength"), 8, &wl[0]);
+
+	float sp[8];
+	for (int i = 0; i < 8; i++)
+	{
+		sp[i] = 1.0f + 2 * i;
+	}
+	glUniform1fv(glGetUniformLocation(myShader->handle(), "speed"), 8, &sp[0]);
+
+	float dr[8];
+	for (int i = 0; i < 8; i++)
+	{
+		double n = (double)rand() / (double)RAND_MAX;
+		double v = -1.1 + n * ((1.1) - (-1.1));
+		dr[i] = v;
+	}
+	glUniform1fv(glGetUniformLocation(myShader->handle(), "direction"), 8, &dr[0]);
+
+	time += App::deltaTime;
+	glUniform1f(glGetUniformLocation(myShader->handle(), "time"), time);
+
+	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &projection[0][0]);
+
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
 
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glDrawElements(GL_TRIANGLES, numberOfTris * 3, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, NumberOfTriangleIndices, GL_UNSIGNED_INT, 0);
 	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Done
@@ -25,6 +67,8 @@ void Wave::render()
 
 void Wave::constructGeometry(Shader* myShader, float minx, float minz, float maxx, float maxz, float y)
 {
+	this->myShader = myShader;
+
 	float squareSizeX = (maxx - minx) / (size - 1);
 	float squareSizeZ = (maxz - minz) / (size - 1);
 
@@ -32,9 +76,9 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 	{
 		for (int j = 0; j < size; j++)
 		{
-			verts[i * 3 + size * j * 3] = minx + squareSizeX * i;
-			verts[i * 3 + size * j * 3 + 1] = y;
-			verts[i * 3 + size * j * 3 + 2] = minz + squareSizeZ * i;
+			verts[j * 3 + size * i * 3] = minx + squareSizeX * j;
+			verts[j * 3 + size * i * 3 + 1] = y;
+			verts[j * 3 + size * i * 3 + 2] = minz + squareSizeZ * i;	
 		}
 	}
 
@@ -42,13 +86,21 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 	{
 		for (int j = 0; j < size - 1; j++)
 		{
-			tris[i * 2 * 3 + (size - 1) * j * 2 * 3] = i * 3 + size * j * 3;
-			tris[i * 2 * 3 + (size - 1) * j * 2 * 3 + 1] = (i + 1) * 3 + size * j * 3;
-			tris[i * 2 * 3 + (size - 1) * j * 2 * 3 + 2] = i * 3 + size * (j + 1) * 3;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 0] = j * 3 + i * size * 3;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 1] = (j + 1) * 3 + (i + 1) * size * 3;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 2] = j * 3 + (i + 1) * size * 3;
 
-			tris[(i + 1) * 2 * 3 + (size - 1) * j * 2 * 3] = (i + 1) * 3 + size * j * 3;
-			tris[(i + 1) * 2 * 3 + (size - 1) * j * 2 * 3 + 1] = i * 3 + size * (j + 1) * 3;
-			tris[(i + 1) * 2 * 3 + (size - 1) * j * 2 * 3 + 2] = (i + 1) * 3 + size * (j + 1) * 3;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 3] = j * 3 + i * size * 3;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 4] = (j + 1) * 3 + i * size * 3;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 5] = (j + 1) * 3 + (i + 1) * size * 3;
+
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 0] = j + i * size;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 1] = (j + 1) + (i + 1) * size;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 2] = j + (i + 1) * size;
+
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 3] = j + i * size;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 4] = (j + 1) + i * size;
+			tris[j * 2 * 3 + (size - 1) * i * 2 * 3 + 5] = (j + 1) + (i + 1) * size;
 		}
 	}
 
@@ -71,7 +123,7 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 
 	glGenBuffers(1, &ibo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, numberOfTris * 3 * sizeof(unsigned int), tris, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, NumberOfTriangleIndices * sizeof(unsigned int), tris, GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glEnableVertexAttribArray(0);
