@@ -90,6 +90,12 @@
     <ClCompile Include="NoiseChunk.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="wave.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Skybox.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3dStruct\BoundingBox.h">
@@ -152,6 +158,15 @@
     <ClInclude Include="NoiseChunk.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="wave.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Skybox.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="glslfiles\basicTransformationsWithDisplacement.vert">
@@ -183,10 +198,55 @@
     <None Include="Blender files\untitled.blend" />
     <None Include="glslfiles\terrain.frag" />
     <None Include="glslfiles\terrain.vert" />
+    <None Include="glslfiles\skybox.vert" />
+    <None Include="glslfiles\skybox.frag" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="nvImage.lib" />
     <Library Include="nvImageD.lib" />
     <Library Include="glew32.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\back.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\bottom.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\front.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\left.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\right.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\top.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\back.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\bottom.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\front.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\left.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\top.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="Images\right.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="objLoadingWIN32.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
 </Project>

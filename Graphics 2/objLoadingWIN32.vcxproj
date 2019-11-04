@@ -103,12 +103,14 @@
     <ClCompile Include="NoiseChunk.cpp" />
     <ClCompile Include="Obj\OBJLoader.cpp" />
     <ClCompile Include="Player.cpp" />
+    <ClCompile Include="Skybox.cpp" />
     <ClCompile Include="Structures\Vector2d.cpp" />
     <ClCompile Include="Structures\Vector3d.cpp" />
     <ClCompile Include="TextureHandler\TextureHandler.cpp" />
     <ClCompile Include="Utilities\IntersectionTests.cpp" />
     <ClCompile Include="Octree\Octree.cpp" />
     <ClCompile Include="shaders\Shader.cpp" />
+    <ClCompile Include="wave.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3dStruct\BoundingBox.h" />
@@ -123,6 +125,8 @@
     <ClInclude Include="NoiseChunk.h" />
     <ClInclude Include="Obj\OBJLoader.h" />
     <ClInclude Include="Player.h" />
+    <ClInclude Include="resource.h" />
+    <ClInclude Include="Skybox.h" />
     <ClInclude Include="Structures\Vector2d.h" />
     <ClInclude Include="Structures\Vector3d.h" />
     <ClInclude Include="TextureHandler\TextureHandler.h" />
@@ -131,6 +135,7 @@
     <ClInclude Include="Utilities\MatrixRoutines.h" />
     <ClInclude Include="Octree\Octree.h" />
     <ClInclude Include="shaders\Shader.h" />
+    <ClInclude Include="wave.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Blender files\untitled.blend" />
@@ -143,6 +148,8 @@
     <None Include="glslfiles\basicTransformationsWithDisplacement.vert" />
     <None Include="glslfiles\displacement.frag" />
     <None Include="glslfiles\displacement.vert" />
+    <None Include="glslfiles\skybox.frag" />
+    <None Include="glslfiles\skybox.vert" />
     <None Include="glslfiles\terrain.frag" />
     <None Include="glslfiles\terrain.vert" />
     <None Include="libpng13.dll" />
@@ -155,6 +162,23 @@
     <Library Include="glew32.lib" />
     <Library Include="nvImage.lib" />
     <Library Include="nvImageD.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\back.jpg" />
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\bottom.jpg" />
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\front.jpg" />
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\left.jpg" />
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\right.jpg" />
+    <Image Include="..\..\..\..\Downloads\skybox\skybox\top.jpg" />
+    <Image Include="Images\back.jpg" />
+    <Image Include="Images\bottom.jpg" />
+    <Image Include="Images\front.jpg" />
+    <Image Include="Images\left.jpg" />
+    <Image Include="Images\right.jpg" />
+    <Image Include="Images\top.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="objLoadingWIN32.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -16,6 +16,7 @@
 //MODEL LOADING
 #include "3DStruct\threeDModel.h"
 #include "Obj\OBJLoader.h"
+#include "Images/imageloader.h"
 
 #include <chrono>
 #include <time.h>
@@ -23,6 +24,7 @@
 #include <algorithm>
 #include <thread> 
 #include <stdlib.h>
+#include "Images/nvImage.h"
 
 using namespace std;
 using namespace std::chrono;

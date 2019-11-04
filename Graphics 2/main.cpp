@@ -7,10 +7,13 @@
 #include "Player.h"
 #include "NoiseChunk.h"
 #include "Box.h"
+#include "wave.h"
+#include "Skybox.h"
 
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
 Shader* terrainShader;
+Shader* skyboxShader;
 
 double maxFrameTime = 0.5;	//Unusual object movement can occur if a frame takes too long to render so a max should be set
 int maxFps = 200;
@@ -37,6 +40,8 @@ float chunkHalfSize = ((NoiseChunk::size - 1.0f) * NoiseChunk::chunkScale / 2.0f
 Player player = Player();
 Box b;
 Box b2;
+Wave w;
+Skybox skybox;
 
 OBJLoader objLoader;
 ///END MODEL LOADING
@@ -94,14 +99,15 @@ void display()
 	glUseProgram(myBasicShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-	b.render();
+	//b.render();
+	//w.render();
 
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	glUniform1f(glGetUniformLocation(terrainShader->handle(), "terraceHeight"), NoiseChunk::terraceHeight);
 	glUniform3fv(glGetUniformLocation(terrainShader->handle(), "cameraPos"), 1, &cameraPos[0]);
-	b2.render();
+	//b2.render();
 	for (int i = 0; i < chunksAmount; i++)
 	{
 		for (int j = 0; j < chunksAmount; j++)
@@ -112,6 +118,8 @@ void display()
 			}			
 		}
 	}
+
+	skybox.render(viewingMatrix, ProjectionMatrix);
 
 	glFlush();
 }
@@ -124,7 +132,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 	glViewport(0,0,width,height);						// Reset The Current Viewport
 
 	//Set the projection matrix
-	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 10.0f, 5000.0f);
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 10.0f, 50000.0f);
 }
 void init()
 {
@@ -133,6 +141,7 @@ void init()
 
 	glClearColor(0.2, 0.4, 0.65,0.0);						//sets the clear colour to yellow	
 	glClearColor(0, 0, 0, 0.0);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 															//glClear(GL_COLOR_BUFFER_BIT) in the display function
 														//will clear the buffer to this colour
 	glEnable(GL_DEPTH_TEST);
@@ -152,6 +161,12 @@ void init()
 
 	terrainShader = new Shader;
 	if (!terrainShader->load("Terrain", "glslfiles/terrain.vert", "glslfiles/terrain.frag"))
+	{
+		cout << "failed to load shader" << endl;
+	}
+
+	skyboxShader = new Shader;
+	if (!skyboxShader->load("skybox", "glslfiles/skybox.vert", "glslfiles/skybox.frag"))
 	{
 		cout << "failed to load shader" << endl;
 	}
@@ -178,8 +193,10 @@ void init()
 	reverse(chunkQueue.begin(), chunkQueue.end());
 
 	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
-	b2.constructGeometry(terrainShader, -3000, -3000, -3000, 3000, 3000, 3000);
+	b2.constructGeometry(terrainShader, -10000, -10000, -10000, 10000, 10000, 10000);
 	player.init(&objLoader, myShader);
+	//w.constructGeometry(myBasicShader, -200, -200, 200, 200, 128);
+	skybox.constructGeometry(skyboxShader);
 	
 }
 
