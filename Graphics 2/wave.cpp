@@ -7,49 +7,28 @@ Wave::Wave()
 	dim = 1.0;
 }
 
-void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection)
+void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTex)
 {
 	glUseProgram(myShader->handle());
 
 	glUniform1f(glGetUniformLocation(myShader->handle(), "waterHeight"), 128);
-	glUniform1f(glGetUniformLocation(myShader->handle(), "numWaves"), 4);
-	glUniform1i(glGetUniformLocation(myShader->handle(), "envMap"), 0);
+	glUniform1i(glGetUniformLocation(myShader->handle(), "numWaves"), 4);
+	glUniform1i(glGetUniformLocation(myShader->handle(), "envMap"), envTex);
 	
-	float amp[8];
-	for (int i = 0; i < 8; i++)
-	{
-		amp[i] = 0.5f / (i + 1);
-	}
 	glUniform1fv(glGetUniformLocation(myShader->handle(), "amplitude"), 8, &amp[0]);
-
-	float wl[8];
-	for (int i = 0; i < 8; i++)
-	{
-		wl[i] = 8 * 3.14f / (i + 1);
-	}
 	glUniform1fv(glGetUniformLocation(myShader->handle(), "wavelength"), 8, &wl[0]);
-
-	float sp[8];
-	for (int i = 0; i < 8; i++)
-	{
-		sp[i] = 1.0f + 2 * i;
-	}
 	glUniform1fv(glGetUniformLocation(myShader->handle(), "speed"), 8, &sp[0]);
-
-	float dr[8];
-	for (int i = 0; i < 8; i++)
-	{
-		double n = (double)rand() / (double)RAND_MAX;
-		double v = -1.1 + n * ((1.1) - (-1.1));
-		dr[i] = v;
-	}
-	glUniform1fv(glGetUniformLocation(myShader->handle(), "direction"), 8, &dr[0]);
+	glUniform2fv(glGetUniformLocation(myShader->handle(), "direction"), 8, &dr[0]);
 
 	time += App::deltaTime;
 	glUniform1f(glGetUniformLocation(myShader->handle(), "time"), time);
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &projection[0][0]);
+
+	glm::mat4 normalMatrix = glm::inverseTranspose(viewMatrix);
+	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "normalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
+
 
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
@@ -129,4 +108,29 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 	glEnableVertexAttribArray(0);
 
 	glBindVertexArray(0);
+
+
+	for (int i = 0; i < 8; i++)
+	{
+		amp[i] = 1.0f / (float)(i + 1);
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		wl[i] = 8 * 3.14f / (i + 1);
+	}
+	for (int i = 0; i < 8; i++)
+	{
+		sp[i] = 1.3f + 2 * i;
+	}
+
+	for (int i = 0; i < 8; i++)
+	{
+		double n = rand() % 361;
+		double v = -1.1 + n * ((1.1) - (-1.1));
+		dr[i] = sin(n*3.14/180);
+		dr[i + 1] = cos(n*3.14 / 180);
+
+		cout << sin(n*3.14 / 180) << ", " << cos(n*3.14 / 180) << "\n";
+	}
 }

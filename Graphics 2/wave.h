@@ -26,9 +26,14 @@ private:
 
 	float time = 0;
 
+	float dr[16];
+	float sp[8];
+	float wl[8];
+	float amp[8];
+
 public:
 	Wave();
 	void constructGeometry(Shader* myShader, float minx, float minz, float maxx, float maxz, float y);
-	void render(glm::mat4 viewMatrix, glm::mat4 projection);
+	void render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTex);
 };
 

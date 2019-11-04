@@ -1,9 +1,28 @@
+#version 150
+
 uniform mat4 ModelViewMatrix;
 uniform mat4 ProjectionMatrix;
 
-varying vec3 position;
-varying vec3 worldNormal;
-varying vec3 eyeNormal;
+uniform mat4 normalMatrix;
+
+in  vec3 in_Position;  // Position coming in
+in  vec3 in_Color;     // colour coming in
+out vec3 ex_Color;     // colour leaving the vertex, this will be sent to the fragment shader
+
+/*void main(void)
+{
+	gl_Position = ProjectionMatrix * ModelViewMatrix * vec4(in_Position, 1.0);
+	ex_Color = in_Color;
+	//ex_Color = vec3(in_Position.y / 48.0, 1.0 - in_Position.y / 48.0, 1.0);
+}*/
+
+
+//uniform mat4 ModelViewMatrix;
+//uniform mat4 ProjectionMatrix;
+
+out vec3 position;
+out vec3 worldNormal;
+out vec3 eyeNormal;
 
 const float pi = 3.14159;
 uniform float waterHeight;
@@ -14,10 +33,10 @@ uniform float wavelength[8];
 uniform float speed[8];
 uniform vec2 direction[8];
 
-in vec3 in_Position;
+//in vec3 in_Position;
 
 float wave(int i, float x, float y) {
-    float frequency = .02*pi/wavelength[i];
+    float frequency = 2.0*pi/wavelength[i];
     float phase = speed[i] * frequency;
     float theta = dot(direction[i], vec2(x, y));
     return amplitude[i] * sin(theta * frequency + time * phase);
@@ -58,11 +77,10 @@ vec3 waveNormal(float x, float y) {
 }
 
 void main() {
-    vec4 pos = gl_Vertex;
-    //pos.z = waterHeight + waveHeight(pos.x, pos.y);
-    //position = pos.xyz / pos.w;
-    //worldNormal = waveNormal(pos.x, pos.y);
-    //eyeNormal = gl_NormalMatrix * worldNormal;
-    //gl_Position = gl_ModelViewProjectionMatrix * pos;
-	gl_Position = pos;
+    vec4 pos = vec4(in_Position, 1.0);
+    pos.y += waveHeight(pos.x, pos.z);
+    position = pos.xyz / pos.w;
+    worldNormal = waveNormal(pos.x, pos.y);
+    eyeNormal = mat3(normalMatrix) * worldNormal;
+    gl_Position = ProjectionMatrix * ModelViewMatrix * pos;
 }

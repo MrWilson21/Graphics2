@@ -26,7 +26,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int renderDist = 5;
+const int renderDist = 1;
 const int chunksAmount = renderDist * 2 + 1;
 NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
 bool terrainGenStatus[chunksAmount][chunksAmount];
@@ -102,7 +102,7 @@ void display()
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	//b.render();
-	w.render(viewingMatrix, ProjectionMatrix);
+	w.render(viewingMatrix, ProjectionMatrix, skybox.cubemapTexture);
 
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
@@ -194,7 +194,7 @@ void init()
 	int maxI = t * t;
 	for (int i = 0; i < maxI; i++) {
 		if ((-chunksAmount / 2 <= x) && (x <= chunksAmount / 2) && (-chunksAmount / 2 <= y) && (y <= chunksAmount / 2)) {
-			//chunkQueue.push_back(glm::vec2(x + renderDist, y + renderDist));
+			chunkQueue.push_back(glm::vec2(x + renderDist, y + renderDist));
 		}
 		if ((x == y) || ((x < 0) && (x == -y)) || ((x > 0) && (x == 1 - y))) {
 			t = dx;
