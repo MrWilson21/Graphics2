@@ -7,13 +7,12 @@ Wave::Wave()
 	dim = 1.0;
 }
 
-void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTex)
+void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTex, glm::vec3 cameraPos)
 {
 	glUseProgram(myShader->handle());
 
 	glUniform1f(glGetUniformLocation(myShader->handle(), "waterHeight"), 128);
 	glUniform1i(glGetUniformLocation(myShader->handle(), "numWaves"), 4);
-	glUniform1i(glGetUniformLocation(myShader->handle(), "envMap"), envTex);
 	
 	glUniform1fv(glGetUniformLocation(myShader->handle(), "amplitude"), 8, &amp[0]);
 	glUniform1fv(glGetUniformLocation(myShader->handle(), "wavelength"), 8, &wl[0]);
@@ -24,11 +23,14 @@ void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTe
 	glUniform1f(glGetUniformLocation(myShader->handle(), "time"), time);
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewMatrix[0][0]);
+	glUniform3fv(glGetUniformLocation(myShader->handle(), "eyePos"), 1, &cameraPos[0]);
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &projection[0][0]);
 
 	glm::mat4 normalMatrix = glm::inverseTranspose(viewMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "normalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
 
+	glUniform1i(glGetUniformLocation(myShader->handle(), "envMap"), 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, envTex);
 
 	//draw objects
 	glBindVertexArray(m_vaoID);		// select VAO
@@ -112,12 +114,12 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 
 	for (int i = 0; i < 8; i++)
 	{
-		amp[i] = 1.0f / (float)(i + 1);
+		amp[i] = 1.2f / (float)(i + 1);
 	}
 
 	for (int i = 0; i < 8; i++)
 	{
-		wl[i] = 8 * 3.14f / (i + 1);
+		wl[i] = 32 * 3.14f / (i + 1);
 	}
 	for (int i = 0; i < 8; i++)
 	{
@@ -130,7 +132,5 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 		double v = -1.1 + n * ((1.1) - (-1.1));
 		dr[i] = sin(n*3.14/180);
 		dr[i + 1] = cos(n*3.14 / 180);
-
-		cout << sin(n*3.14 / 180) << ", " << cos(n*3.14 / 180) << "\n";
 	}
 }

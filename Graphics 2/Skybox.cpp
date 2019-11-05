@@ -15,8 +15,10 @@ void Skybox::render(glm::mat4 viewMatrix, glm::mat4 projection)
 
 	glBindVertexArray(skyboxVAO);
 	glActiveTexture(GL_TEXTURE0);
-	//glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
-	glUniform1i(glGetUniformLocation(myShader->handle(), "skybox"), cubemapTexture);
+
+	glUniform1i(glGetUniformLocation(myShader->handle(), "skybox"), 0);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);;
+
 	glDrawArrays(GL_TRIANGLES, 0, 36);
 	glBindVertexArray(0);
 	glDepthFunc(GL_LESS); // set depth function back to default

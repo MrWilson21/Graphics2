@@ -26,7 +26,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int renderDist = 1;
+const int renderDist = 10;
 const int chunksAmount = renderDist * 2 + 1;
 NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
 bool terrainGenStatus[chunksAmount][chunksAmount];
@@ -35,6 +35,8 @@ int maxThreads;
 int currentThreads = 0;
 vector <App::terrainThread> threads;
 vector<glm::vec2> chunkQueue;
+
+float waterRenderDist = 1000;
 
 glm::vec3 chunkOffset = glm::vec3(renderDist + 0.5f, 1, renderDist + 0.5f);
 float chunkHalfSize = ((NoiseChunk::size - 1.0f) * NoiseChunk::chunkScale / 2.0f);
@@ -102,14 +104,14 @@ void display()
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	//b.render();
-	w.render(viewingMatrix, ProjectionMatrix, skybox.cubemapTexture);
+	b2.render();
+	w.render(viewingMatrix, ProjectionMatrix, skybox.cubemapTexture, cameraPos);
 
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	glUniform1f(glGetUniformLocation(terrainShader->handle(), "terraceHeight"), NoiseChunk::terraceHeight);
 	glUniform3fv(glGetUniformLocation(terrainShader->handle(), "cameraPos"), 1, &cameraPos[0]);
-	//b2.render();
 	for (int i = 0; i < chunksAmount; i++)
 	{
 		for (int j = 0; j < chunksAmount; j++)
@@ -207,9 +209,9 @@ void init()
 	reverse(chunkQueue.begin(), chunkQueue.end());
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
-	b2.constructGeometry(waterShader, -10000, -10000, -10000, 10000, 128, 10000);
+	b2.constructGeometry(waterShader, -waterRenderDist, -waterRenderDist, -waterRenderDist, waterRenderDist, 128, waterRenderDist);
 	player.init(&objLoader, myShader);
-	w.constructGeometry(waveShader, -500, -500, 500, 500, 128);
+	w.constructGeometry(waveShader, -waterRenderDist, -waterRenderDist, waterRenderDist, waterRenderDist, 128);
 	skybox.constructGeometry(skyboxShader);
 	
 }

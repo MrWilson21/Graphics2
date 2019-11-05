@@ -34,6 +34,6 @@ private:
 public:
 	Wave();
 	void constructGeometry(Shader* myShader, float minx, float minz, float maxx, float maxz, float y);
-	void render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTex);
+	void render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTex, glm::vec3 cameraPos);
 };
 

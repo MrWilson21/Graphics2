@@ -29,13 +29,13 @@ void Box::constructGeometry(Shader* myShader, float minx, float miny, float minz
 {
 	// First simple object
 	verts[0] = minx;   verts[ 1] = miny;  verts[ 2] = minz;
-	verts[3] = minx;   verts[ 4] =  maxy;  verts[ 5] = minz;
-	verts[6] =  maxx;   verts[ 7] =  maxy;  verts[ 8] = minz;
+	verts[3] = minx;   verts[ 4] =  maxy;  verts[ 5] = minz;	//1
+	verts[6] =  maxx;   verts[ 7] =  maxy;  verts[ 8] = minz;	//2
 	verts[9] =  maxx;   verts[10] = miny;  verts[11] = minz;
 
 	verts[12] = minx;   verts[13] = miny;  verts[14] = maxz;
-	verts[15] = minx;   verts[16] =  maxy;  verts[17] = maxz;
-	verts[18] =  maxx;   verts[19] =  maxy;  verts[20] = maxz;
+	verts[15] = minx;   verts[16] =  maxy;  verts[17] = maxz;	//5
+	verts[18] =  maxx;   verts[19] =  maxy;  verts[20] = maxz;	//6
 	verts[21] =  maxx;   verts[22] = miny;  verts[23] = maxz;
 
 	cols[0] = 0.0;   cols[ 1] = 1.0;  cols[ 2] = 1.0;
@@ -52,8 +52,8 @@ void Box::constructGeometry(Shader* myShader, float minx, float miny, float minz
 	tris[3]=0; tris[4]=2; tris[5]=3;
 	tris[6]=4; tris[7]=6; tris[8]=5;
 	tris[9]=4; tris[10]=7; tris[11]=6;
-	tris[12]=1; tris[13]=5; tris[14]=6;
-	tris[15]=1; tris[16]=6; tris[17]=2;
+	tris[12] = 0; tris[13] = 0; tris[14] = 0;//tris[12]=1; tris[13]=5; tris[14]=6;
+	tris[15] = 0; tris[16] = 0; tris[17] = 0;//tris[15]=1; tris[16]=6; tris[17]=2;
 	tris[18]=0; tris[19]=7; tris[20]=4;
 	tris[21]=0; tris[22]=3; tris[23]=7;
 	tris[24]=0; tris[25]=5; tris[26]=1;

@@ -69,11 +69,13 @@ void main(void)
 	//fogFactor = (fogEnd + ex_PositionVert.y)/(fogEnd-fogStart);
 	fogFactor = (fogEnd + disFactor )/(fogEnd-fogStart);
 
-	fogFactor = clamp(fogFactor,0.0,1.0);
-	vec4 fogColor = vec4(0.2,0.4,0.65,1.0);
+	//fogFactor = clamp(fogFactor,0.0,1.0);
+	//vec4 fogColor = vec4(0.2,0.4,0.65,1.0);
 
-	out_Color = vec4(ex_Color,1.0);
-	out_Color = mix(fogColor,vec4(ex_Color, 1.0), fogFactor);
+	//out_Color = vec4(ex_Color,1.0);
+	//out_Color = mix(fogColor,vec4(ex_Color, 1.0), fogFactor);
 
-	out_Color = vec4(vec3(fogColor), fogFactor);
+	//out_Color = vec4(vec3(fogColor), fogFactor);
+	//out_Color = vec4(vec3(fogColor), 1.0);
+	out_Color = vec4(1.0, 0.0, 0.0, 1.0);
 }

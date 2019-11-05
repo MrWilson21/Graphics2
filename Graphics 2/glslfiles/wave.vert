@@ -72,7 +72,7 @@ vec3 waveNormal(float x, float y) {
         dx += dWavedx(i, x, y);
         dy += dWavedy(i, x, y);
     }
-    vec3 n = vec3(-dx, -dy, 1.0);
+    vec3 n = vec3(-dx, 1.0, -dy);
     return normalize(n);
 }
 
@@ -82,5 +82,9 @@ void main() {
     position = pos.xyz / pos.w;
     worldNormal = waveNormal(pos.x, pos.y);
     eyeNormal = mat3(normalMatrix) * worldNormal;
+	if(in_Position.x < -499 || in_Position.x > 499 || in_Position.z < -499 || in_Position.z > 499)
+	{
+		pos.y = 128;
+	}
     gl_Position = ProjectionMatrix * ModelViewMatrix * pos;
 }

@@ -24,7 +24,7 @@ void main(void)
 			depthFactor = pow(abs(waterHeight - ex_PositionVert.y) / waterHeight, 1.0f);
 			float xDiff = pow(ex_PositionEye.x - ex_PositionVert.x, 2);
 			float yDiff = pow(ex_PositionEye.y - ex_PositionVert.y, 2);
-			float zDiff = pow(ex_PositionEye.y - ex_PositionVert.y, 2);
+			float zDiff = pow(ex_PositionEye.z - ex_PositionVert.z, 2);
 			disFactor = sqrt(xDiff + yDiff + zDiff);
 			disFactor *= (waterHeight - ex_PositionVert.y) / (ex_PositionEye.y - ex_PositionVert.y);
 		}
@@ -36,7 +36,7 @@ void main(void)
 			depthFactor = pow(abs(waterHeight - ex_PositionEye.y) / waterHeight, 1.0f);
 			float xDiff = pow(ex_PositionEye.x - ex_PositionVert.x, 2);
 			float yDiff = pow(ex_PositionEye.y - ex_PositionVert.y, 2);
-			float zDiff = pow(ex_PositionEye.y - ex_PositionVert.y, 2);
+			float zDiff = pow(ex_PositionEye.z - ex_PositionVert.z, 2);
 			disFactor = sqrt(xDiff + yDiff + zDiff);
 			disFactor *= (waterHeight - ex_PositionEye.y) / (ex_PositionVert.y - ex_PositionEye.y);
 		}
@@ -44,7 +44,7 @@ void main(void)
 		{
 			float xDiff = pow(ex_PositionEye.x - ex_PositionVert.x, 2);
 			float yDiff = pow(ex_PositionEye.y - ex_PositionVert.y, 2);
-			float zDiff = pow(ex_PositionEye.y - ex_PositionVert.y, 2);
+			float zDiff = pow(ex_PositionEye.z - ex_PositionVert.z, 2);
 			disFactor = sqrt(xDiff + yDiff + zDiff);
 			
 			if(ex_PositionEye.y >= ex_PositionVert.y)
@@ -97,7 +97,7 @@ void main(void)
 	}*/
 
 	float fogStart = -0.0;
-	float fogEnd = -100.0;
+	float fogEnd = -250.0;
 	float fogFactor = (fogEnd - ex_PositionEye.z)/(fogEnd-fogStart);
 	//fogFactor = depthFactor / 50;
 	//fogFactor = (fogEnd + ex_PositionVert.y)/(fogEnd-fogStart);
