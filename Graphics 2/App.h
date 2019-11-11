@@ -38,10 +38,12 @@ public:
 	static int	mouse_x;
 	static int mouse_y;
 	static bool LeftPressed;
+	static bool rightPressed;
 	static int screenWidth;
 	static int screenHeight;
 	static bool keys[256];
 	static double deltaTime;
+	static float waterHeight;
 
 	static glm::vec3 ConvertMatToEulerAnglesXYZ(const glm::mat3& mat);
 	static void printMatrix(const glm::mat4 & mat);

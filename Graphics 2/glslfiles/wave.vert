@@ -84,7 +84,7 @@ void main() {
     eyeNormal = mat3(normalMatrix) * worldNormal;
 	if(in_Position.x < -499 || in_Position.x > 499 || in_Position.z < -499 || in_Position.z > 499)
 	{
-		pos.y = 128;
+		pos.y = waterHeight;
 	}
     gl_Position = ProjectionMatrix * ModelViewMatrix * pos;
 }

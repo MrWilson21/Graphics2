@@ -7,10 +7,10 @@ out vec4 out_Color; //colour for the pixel
 
 in vec3 ex_PositionEye;
 in vec3 ex_PositionVert;
+uniform float waterHeight;
 
 void main(void)
 {
-	float waterHeight = 128;
 	float disFactor = 0;
 	float depthFactor = 0;
 	if(ex_PositionEye.y >= waterHeight)

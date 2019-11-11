@@ -11,7 +11,7 @@ void Wave::render(glm::mat4 viewMatrix, glm::mat4 projection, unsigned int envTe
 {
 	glUseProgram(myShader->handle());
 
-	glUniform1f(glGetUniformLocation(myShader->handle(), "waterHeight"), 128);
+	glUniform1f(glGetUniformLocation(myShader->handle(), "waterHeight"), App::waterHeight);
 	glUniform1i(glGetUniformLocation(myShader->handle(), "numWaves"), 4);
 	
 	glUniform1fv(glGetUniformLocation(myShader->handle(), "amplitude"), 8, &amp[0]);

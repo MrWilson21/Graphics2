@@ -6,11 +6,11 @@ out vec4 out_Color; //colour for the pixel
 in vec3 position;
 in vec3 worldNormal;
 in vec3 eyeNormal;
+uniform float waterHeight;
 uniform vec3 eyePos;
 uniform samplerCube envMap;
 
 void main() {
-	float waterHeight = 128;
 	float disFactor = 0;
 	float depthFactor = 0;
 

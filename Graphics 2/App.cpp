@@ -7,6 +7,8 @@ int App::screenWidth = 600;
 int App::screenHeight = 600;
 bool App::keys[256];
 double App::deltaTime = 0;
+bool App::rightPressed = false;
+float App::waterHeight = 225;
 
 
 App::App()

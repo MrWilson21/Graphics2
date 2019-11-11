@@ -137,29 +137,18 @@ void Player::move()
 	glm::vec3 p = position;
 	glm::vec3 b = i - p;
 	float dist = glm::dot(b, globalY);
-	//glm::vec3 c = i - a;
-	//glm::vec3 g = c - p;
 
 	glm::vec3 axis = localZSub;
-	/*if (glm::length(axis) != 0)
-	{
-		glm::vec3 axis = glm::normalize(glm::cross(g, b));
-	}*/
-
-	/*float angle = 0;
-	if (dist > 0)
-	{
-		angle = 1.0 + abs(dist) * 2;
-	}
-	else if (dist < 0)
-	{
-		angle = -1.0 - abs(dist) * 2;
-	}*/
 
 	rotationForce.x += dist * App::deltaTime * xCorrectionForce;
 
-	//cout << dist << "\n";
+	localZSub = glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]);
+	i = localZSub + position;
+	p = position;
+	b = i - p;
+	dist = glm::dot(b, globalY);
 
+	rotationForce.z -= dist * App::deltaTime * xCorrectionForce;
 
 	//float angle = glm::dot(b, g);
 	//cout << localZSub.x << "," << localZSub.y << "," << localZSub.z << "\n";

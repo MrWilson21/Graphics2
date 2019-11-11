@@ -59,6 +59,17 @@ float Light_Ambient_And_Diffuse[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 float Light_Specular[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 float LightPos[4] = {0.0f, 10.0f, 0.0f, 0.0f};
 
+float camAngleX = 0;
+float camAngleY = 0;
+float camRadius = 15.0f;
+float camRadiusMin = 3;
+float camRadiusMax = 20;
+glm::vec2 mousePrevious = glm::vec2(0, 0);
+glm::vec2 mouseDifference = glm::vec2(0, 0);
+float spinSpeed = 0.005;
+
+float camMode = 1;
+
 //OPENGL FUNCTION PROTOTYPES
 void display();				//called in winmain to draw everything to the screen
 void reshape(int width, int height);				//called when the window is resized
@@ -87,8 +98,27 @@ void display()
 	glUniformMatrix4fv(matLocation, 1, GL_FALSE, &ProjectionMatrix[0][0]);
 
 	//glm::mat4 viewingMatrix = glm::translate(glm::mat4(1.0),glm::vec3(0, 0, -50));
-
-	viewingMatrix = glm::lookAt(player.position + player.localForward * 15.0f + player.localUp * 5.0f, player.position, glm::vec3(0, 1, 0));
+	if (camMode == 0)
+	{
+		glm::vec3 forward = glm::vec3(0, 0, 1);
+		glm::vec3 up = glm::vec3(0, 1, 0);
+		glm::vec3 right = glm::vec3(1, 0, 0);
+		glm::vec3 cosAngleX = player.localForward * camRadius * cos(camAngleX);
+		glm::vec3 sinAngleX = player.localRight * camRadius * sin(camAngleX);
+		glm::vec3 cosAngleY = glm::normalize(cosAngleX + sinAngleX) * camRadius * sin(camAngleY);
+		glm::vec3 sinAngleY = up * camRadius * sin(camAngleY);
+		glm::vec3 camOffset = cosAngleX + sinAngleX + cosAngleY + sinAngleY;
+		camOffset = glm::normalize(camOffset) * camRadius;
+		viewingMatrix = glm::lookAt(player.position + camOffset, player.position, glm::vec3(0, 1, 0));
+	}
+	else if(camMode == 1)
+	{
+		viewingMatrix = glm::lookAt(player.position + player.localForward * 15.0f + player.localUp * 5.0f, player.position, glm::vec3(0, 1, 0));
+	}
+	else
+	{
+		viewingMatrix = glm::lookAt(player.position - player.localForward * 4.5f, player.position - player.localForward * 5.5f, glm::vec3(0, 1, 0));
+	}
 	glm::vec3 cameraPos = player.position + player.localForward * 15.0f + player.localUp * 5.0f;
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
@@ -111,6 +141,7 @@ void display()
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 	glUniform1f(glGetUniformLocation(terrainShader->handle(), "terraceHeight"), NoiseChunk::terraceHeight);
+	glUniform1f(glGetUniformLocation(terrainShader->handle(), "waterHeight"), App::waterHeight);
 	glUniform3fv(glGetUniformLocation(terrainShader->handle(), "cameraPos"), 1, &cameraPos[0]);
 	for (int i = 0; i < chunksAmount; i++)
 	{
@@ -136,7 +167,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 	glViewport(0,0,width,height);						// Reset The Current Viewport
 
 	//Set the projection matrix
-	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 10.0f, 50000.0f);
+	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 1.0f, 50000.0f);
 }
 void init()
 {
@@ -209,9 +240,9 @@ void init()
 	reverse(chunkQueue.begin(), chunkQueue.end());
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	b.constructGeometry(myBasicShader, -chunkHalfSize, -chunkHalfSize, -chunkHalfSize, chunkHalfSize, chunkHalfSize, chunkHalfSize);
-	b2.constructGeometry(waterShader, -waterRenderDist, -waterRenderDist, -waterRenderDist, waterRenderDist, 128, waterRenderDist);
+	b2.constructGeometry(waterShader, -waterRenderDist, -waterRenderDist, -waterRenderDist, waterRenderDist, App::waterHeight, waterRenderDist);
 	player.init(&objLoader, myShader);
-	w.constructGeometry(waveShader, -waterRenderDist, -waterRenderDist, waterRenderDist, waterRenderDist, 128);
+	w.constructGeometry(waveShader, -waterRenderDist, -waterRenderDist, waterRenderDist, waterRenderDist, App::waterHeight);
 	skybox.constructGeometry(skyboxShader);
 	
 }
@@ -221,6 +252,38 @@ void update()
 	updateThreads();
 	updateRenderStatus();
 	player.update();
+
+	mouseDifference = glm::vec2(App::mouse_x, App::mouse_y) - mousePrevious;
+	mousePrevious = glm::vec2(App::mouse_x, App::mouse_y);
+
+	if (App::rightPressed)
+	{
+		camAngleX += mouseDifference.x * spinSpeed;
+		camAngleY += -mouseDifference.y * spinSpeed;
+
+		if (camAngleY > 1.2)
+		{
+			camAngleY = 1.2f;
+		}
+
+		if (camAngleY < -0.9)
+		{
+			camAngleY = -0.9f;
+		}
+	}
+
+	if (App::keys[0x31])
+	{
+		camMode = 0;
+	}
+	if (App::keys[0x32])
+	{
+		camMode = 1;
+	}
+	if (App::keys[0x33])
+	{
+		camMode = 2;
+	}
 }
 
 void genNewChunk(int i, int j, bool* finished)
@@ -387,6 +450,20 @@ LRESULT CALLBACK WndProc(	HWND	hWnd,			// Handle For This Window
 		{
 			reshape(LOWORD(lParam),HIWORD(lParam));  // LoWord=Width, HiWord=Height
 			return 0;								// Jump Back
+		}
+		break;
+
+		case WM_RBUTTONDOWN:
+		{
+			App::mouse_x = LOWORD(lParam);
+			App::mouse_y = App::screenHeight - HIWORD(lParam);
+			App::rightPressed = true;
+		}
+		break;
+
+		case WM_RBUTTONUP:
+		{
+			App::rightPressed = false;
 		}
 		break;
 
