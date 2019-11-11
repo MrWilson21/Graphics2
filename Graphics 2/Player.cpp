@@ -148,7 +148,7 @@ void Player::move()
 	b = i - p;
 	dist = glm::dot(b, globalY);
 
-	rotationForce.z -= dist * App::deltaTime * xCorrectionForce;
+	rotationForce.z -= pow(dist, 3) * App::deltaTime * zCorrectionForce;
 
 	//float angle = glm::dot(b, g);
 	//cout << localZSub.x << "," << localZSub.y << "," << localZSub.z << "\n";

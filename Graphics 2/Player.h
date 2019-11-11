@@ -18,6 +18,7 @@ private:
 	float linearRotationDamping = 4;
 	float staticRotationDamping = 0.5;
 	float xCorrectionForce = 300;
+	float zCorrectionForce = 500;
 
 	float accelerationForce = 30;
 	float linearDrag = 1;
