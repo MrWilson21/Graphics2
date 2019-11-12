@@ -7,6 +7,7 @@
 #include "Player.h"
 #include "NoiseChunk.h"
 #include "Box.h"
+#include "worldBox.h"
 #include "wave.h"
 #include "Skybox.h"
 
@@ -26,7 +27,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int renderDist = 10;
+const int renderDist = 0;
 const int chunksAmount = renderDist * 2 + 1;
 NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
 bool terrainGenStatus[chunksAmount][chunksAmount];
@@ -42,8 +43,8 @@ glm::vec3 chunkOffset = glm::vec3(renderDist + 0.5f, 1, renderDist + 0.5f);
 float chunkHalfSize = ((NoiseChunk::size - 1.0f) * NoiseChunk::chunkScale / 2.0f);
 
 Player player = Player();
-Box b;
-Box b2;
+worldBox b;
+worldBox b2;
 Wave w;
 Skybox skybox;
 
@@ -133,6 +134,17 @@ void display()
 	glUseProgram(myBasicShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
+	for (int i = 0; i < chunksAmount; i++)
+	{
+		for (int j = 0; j < chunksAmount; j++)
+		{
+			if (terrainRenderStatus[i][j])
+			{
+				//terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
+				terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
+			}
+		}
+	}
 	//b.render();
 	b2.render();
 	w.render(viewingMatrix, ProjectionMatrix, skybox.cubemapTexture, cameraPos);
@@ -150,6 +162,12 @@ void display()
 			if (terrainRenderStatus[i][j])
 			{
 				terrainGenerator[i][j].render();
+				//glUseProgram(myBasicShader->handle());  // use the shader
+				//glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
+				//glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
+
+				//terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
+				//terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
 			}			
 		}
 	}

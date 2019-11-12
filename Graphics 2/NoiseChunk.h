@@ -43,6 +43,8 @@ public:
 	float* norms;
 	unsigned int* tInds;
 
+	ThreeDModel model;
+
 private:
 	vector<float> vertices;
 	vector<float> colours;

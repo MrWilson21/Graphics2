@@ -9,6 +9,7 @@ Player::Player()
 
 void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewingMatrix, glm::mat4* ProjectionMatrix)
 {
+	//cout << position.x << ", " << position.y << ", " << position.z << "\n";
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "material_ambient"), 1, Material_Ambient);
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "material_diffuse"), 1, Material_Diffuse);
 	glUniform4fv(glGetUniformLocation(myShader->handle(), "material_specular"), 1, Material_Specular);
@@ -30,12 +31,12 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 
 	model.drawElementsUsingVBO(myShader);
 
-	//glUseProgram(myBasicShader->handle());  // use the shader
-	//glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &(*ProjectionMatrix)[0][0]);
-	//glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
+	glUseProgram(myBasicShader->handle());  // use the shader
+	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &(*ProjectionMatrix)[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
-	//model.drawBoundingBox(myBasicShader);
-	//model.drawOctreeLeaves(myBasicShader);
+	model.drawBoundingBox(myBasicShader);
+	model.drawOctreeLeaves(myBasicShader);
 }
 
 void Player::init(OBJLoader* objLoader, Shader* myShader)

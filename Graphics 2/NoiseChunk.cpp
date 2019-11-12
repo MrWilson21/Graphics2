@@ -203,6 +203,68 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 		}
 		std::this_thread::sleep_for(std::chrono::nanoseconds{ 0 });
 	}
+
+	model.numberOfVertices = numOfVerts;
+	model.numberOfTriangles = numOfTris;
+	model.numberOfTexCoords = 0;
+	model.numberOfVertNormals = numOfVerts;
+	model.numberOfMatrials = 0;
+	model.numberOfFaceNormals = numOfVerts / 3;
+
+	model.theFaceNormals = new Vector3d[model.numberOfFaceNormals];
+	model.theFaces = new aFace[model.numberOfTriangles];
+	for (int i = 0; i < model.numberOfTriangles; i++)
+	{
+		aFace* currentFace = &model.theFaces[i];
+
+		currentFace->thePoints[0] = i * 3;
+		currentFace->thePoints[1] = i * 3 + 1;
+		currentFace->thePoints[2] = i * 3 + 2;
+
+		/*		currentFace->theNormals[0] =  m_vFaces[i].m_uiNormalIdx[0];
+				currentFace->theNormals[1] =  m_vFaces[i].m_uiNormalIdx[1];
+				currentFace->theNormals[2] =  m_vFaces[i].m_uiNormalIdx[2]; */
+
+		//currentFace->theTexCoord[0] = m_vFaces[i].m_uiTexCoordIdx[0];
+		//currentFace->theTexCoord[1] = m_vFaces[i].m_uiTexCoordIdx[1];
+		//currentFace->theTexCoord[2] = m_vFaces[i].m_uiTexCoordIdx[2];
+
+		//currentFace->materialId = m_vFaces[i].matId;
+	}
+
+	//Load the First Frame into the threeDModel
+	model.theVerts = new Vector3d[model.numberOfVertices];
+	for (int i = 0; i < model.numberOfVertices; i++)
+	{
+		float thePoints[3];
+		thePoints[0] = vertices[i * 3];
+		thePoints[1] = vertices[i * 3 + 1];
+		thePoints[2] = vertices[i * 3 + 2];
+		//model.theVerts[i] = Vector3d(thePoints[0], thePoints[1], thePoints[2]);
+		model.theVerts[i] = thePoints;
+	}
+
+	model.theVertNormals = new Vector3d[model.numberOfVertNormals];
+	for (int i = 0; i < model.numberOfVertNormals; i++)
+	{
+		model.theVertNormals[i] = Vector3d(normals[i], normals[i + 1], normals[i + 2]);
+	}
+
+	model.theTexCoords = new Vector2d[0];
+
+
+	model.theMaterials = new aMaterial[0];
+
+	model.calcFaceNormals();
+
+	model.sortFacesOnMaterial();
+
+	model.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
+
+	//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
+	//model.initDrawElements();
+	//model.initVBO(myShader);
+	model.deleteVertexFaceData();
 }
 
 void NoiseChunk::applyTerrain()

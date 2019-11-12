@@ -111,6 +111,7 @@
     <ClCompile Include="Octree\Octree.cpp" />
     <ClCompile Include="shaders\Shader.cpp" />
     <ClCompile Include="wave.cpp" />
+    <ClCompile Include="worldBox.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="3dStruct\BoundingBox.h" />
@@ -136,6 +137,7 @@
     <ClInclude Include="Octree\Octree.h" />
     <ClInclude Include="shaders\Shader.h" />
     <ClInclude Include="wave.h" />
+    <ClInclude Include="worldBox.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Blender files\untitled.blend" />
