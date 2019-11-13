@@ -73,6 +73,7 @@ float spinSpeed = 0.005;
 
 float camMode = 1;
 int collisionCount = 0;
+float timer = 0;
 
 //OPENGL FUNCTION PROTOTYPES
 void display();				//called in winmain to draw everything to the screen
@@ -164,7 +165,7 @@ void display()
 		{
 			if (terrainRenderStatus[i][j])
 			{
-				terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
+				//terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
 				//terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
 			}
 		}
@@ -338,7 +339,22 @@ void update()
 			}
 		}
 	}
-	cout << "collision count: " << collisionCount << "\n";
+	glm::mat4 g = glm::mat4(1.0);
+	g = glm::translate(g, player.position);
+	g = g * player.objectRotation;
+	glm::vec4 a = g * glm::vec4(1.0, 0, 0, 1.0f);
+	glm::vec4 b = g * glm::vec4(0,0,0, 1.0f);
+	glm::vec4 c = g * glm::vec4(-1,0,0, 1.0f);
+
+	//if (timer > 0.2)
+	{
+		cout << "collision count: " << collisionCount << "\n";
+		App::printVec3(glm::vec3(a));
+		App::printVec3(glm::vec3(b));
+		App::printVec3(glm::vec3(c));
+		timer = 0;
+	}
+	timer += App::deltaTime;
 }
 
 void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainModel)
@@ -384,10 +400,21 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 		{
 			if (terrainOct->VertexListSize > 0)
 			{
-				for (int i = 0; i < playerOct->VertexListSize / 3; i++)
+				for (int i = 0; i < playerOct->VertexListSize; i++)
 				{	
-					for (int j = 0; j < terrainOct->VertexListSize / 3; j++)
+					for (int j = 0; j < terrainOct->VertexListSize; j++)
 					{
+						//cout << "vertexlist\n";
+						for (int k = 0; k < terrainOct->VertexListSize; k++)
+						{
+							//cout << terrainModel->numberOfVertices << "\n";
+							//cout << terrainOct->VertexListSize << "\n";
+							//cout << k << "\n";
+							//cout << terrainOct->VertexList[k] << "\n";
+							//cout << terrainModel->theVerts[terrainOct->VertexList[k]] << "\n";
+							//cout << terrainModel->theVerts[terrainOct->VertexList[k] + 1] << "\n";
+							//cout << terrainModel->theVerts[terrainOct->VertexList[k] + 2] << "\n";
+						}
 						float p1[3];
 						float p2[3];
 						float p3[3];
@@ -396,29 +423,34 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 						float t2[3];
 						float t3[3];
 
-						t1[0] = terrainModel->theVerts[terrainOct->VertexList[j * 3]][0];
-						t1[1] = terrainModel->theVerts[terrainOct->VertexList[j * 3]][1];
-						t1[2] = terrainModel->theVerts[terrainOct->VertexList[j * 3]][2];
-						t2[0] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 1]][0];
-						t2[1] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 1]][1];
-						t2[2] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 1]][2];
-						t3[0] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 2]][0];
-						t3[1] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 2]][1];
-						t3[2] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 2]][2];
+						if ((terrainOct->VertexList[j] - 2) % 3 != 0)
+						{
+							continue;
+						}
+
+						t1[0] = terrainModel->theVerts[terrainOct->VertexList[j] - 2][0];
+						t1[1] = terrainModel->theVerts[terrainOct->VertexList[j] - 2][1];
+						t1[2] = terrainModel->theVerts[terrainOct->VertexList[j] - 2][2];
+						t2[0] = terrainModel->theVerts[terrainOct->VertexList[j] - 1][0];
+						t2[1] = terrainModel->theVerts[terrainOct->VertexList[j] - 1][1];
+						t2[2] = terrainModel->theVerts[terrainOct->VertexList[j] - 1][2];
+						t3[0] = terrainModel->theVerts[terrainOct->VertexList[j]][0];
+						t3[1] = terrainModel->theVerts[terrainOct->VertexList[j]][1];
+						t3[2] = terrainModel->theVerts[terrainOct->VertexList[j]][2];
 
 						glm::mat4 g = glm::mat4(1.0);
 						g = glm::translate(g, player.position);
 						g = g * player.objectRotation;
 
-						p1[0] = player.model.theVerts[playerOct->VertexList[i * 3]][0];
-						p1[1] = player.model.theVerts[playerOct->VertexList[i * 3]][1];
-						p1[2] = player.model.theVerts[playerOct->VertexList[i * 3]][2];
-						p2[0] = player.model.theVerts[playerOct->VertexList[i * 3 + 1]][0];
-						p2[1] = player.model.theVerts[playerOct->VertexList[i * 3 + 1]][1];
-						p2[2] = player.model.theVerts[playerOct->VertexList[i * 3 + 1]][2];
-						p3[0] = player.model.theVerts[playerOct->VertexList[i * 3 + 2]][0];
-						p3[1] = player.model.theVerts[playerOct->VertexList[i * 3 + 2]][1];
-						p3[2] = player.model.theVerts[playerOct->VertexList[i * 3 + 2]][2];
+						p1[0] = player.model.theVerts[playerOct->VertexList[i]][0];
+						p1[1] = player.model.theVerts[playerOct->VertexList[i]][1];
+						p1[2] = player.model.theVerts[playerOct->VertexList[i]][2];
+						p2[0] = player.model.theVerts[playerOct->VertexList[i] + 1][0];
+						p2[1] = player.model.theVerts[playerOct->VertexList[i] + 1][1];
+						p2[2] = player.model.theVerts[playerOct->VertexList[i] + 1][2];
+						p3[0] = player.model.theVerts[playerOct->VertexList[i] + 2][0];
+						p3[1] = player.model.theVerts[playerOct->VertexList[i] + 2][1];
+						p3[2] = player.model.theVerts[playerOct->VertexList[i] + 2][2];
 
 						glm::vec4 a = g * glm::vec4(p1[0], p1[1], p1[2], 1.0f);
 						glm::vec4 b = g * glm::vec4(p2[0], p2[1], p2[2], 1.0f);
@@ -434,14 +466,64 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 						p3[1] = c.y;
 						p3[2] = c.z;
 
-						if (IntersectionTests::tri_tri_overlap_test_3d(p1, p2, p3, t1, t2, t3) == 1)
+						if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1)
 						{
 							collisionCount++;
 							Vector3d n = terrainModel->theFaceNormals[j];
 							glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
 							player.velocity = glm::reflect(player.velocity, normal);
 							player.position += player.velocity * (float)App::deltaTime;
+							//cout << "tri1\n";
+							//App::printVec3(glm::vec3(a));
+							//App::printVec3(glm::vec3(b));
+							//App::printVec3(glm::vec3(c));
+							//cout << t1[0] << ", " << t1[1] << ", " << t1[2] << "\n";
+							//cout << t2[0] << ", " << t2[1] << ", " << t2[2] << "\n";
+							//cout << t3[0] << ", " << t3[1] << ", " << t3[2] << "\n";
+							//cout << terrainOct->VertexList[j] - 2 << ", " << terrainOct->VertexList[j] - 1 << ", " << terrainOct->VertexList[j] << "\n";
 						}
+
+
+						/*if (IntersectionTests::tri_tri_overlap_test_3d(p1, p2, p3, t1, t2, t3) == 1)
+						{
+							collisionCount++;
+							Vector3d n = terrainModel->theFaceNormals[j];
+							glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
+							player.velocity = glm::reflect(player.velocity, normal);
+							player.position += player.velocity * (float)App::deltaTime;
+							cout << "tri1\n";
+							App::printVec3(glm::vec3(a));
+							App::printVec3(glm::vec3(b));
+							App::printVec3(glm::vec3(c));
+							cout << t1[0] << ", " << t1[1] << ", " << t1[2] << "\n";
+							cout << t2[0] << ", " << t2[1] << ", " << t2[2] << "\n";
+							cout << t3[0] << ", " << t3[1] << ", " << t3[2] << "\n";
+
+							float d1[3] = { -4.29521, -8.50098, -1.07187 };
+							float d2[3] = { -4.15965, -8.54044, -1.11133 };
+							float d3[3] = { -4.5, -12, -0.753403 };
+
+							float q1[3] = { -4.5, -12, -0.753403 };
+							float q2[3] = { -4.5, -12, -0.753403 };
+							float q3[3] = { -4.5, -10.8124, -4.5 };
+
+							int u = 0;
+							float h[3] = { 0,0,0 };
+							if (IntersectionTests::tri_tri_overlap_test_3d(d1, q1, d2, q2, d3, q3) == 1)
+							{
+								cout << "yesyes\n";
+							}
+							else
+							{
+								cout << "no\n";
+							}
+						}*/
+						//glm::vec3(-4.71739, -8.26703, -0.837914)
+							//- 4.29521, -8.50098, -1.07187
+							//- 4.15965, -8.54044, -1.11133
+							//- 4.5, -12, -0.753403
+							//- 4.5, -12, -0.753403
+							//- 4.5, -10.8124, -4.5
 					}
 				}
 			}

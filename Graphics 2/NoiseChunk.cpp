@@ -217,9 +217,9 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 	{
 		aFace* currentFace = &model.theFaces[i];
 
-		currentFace->thePoints[0] = i * 3;
-		currentFace->thePoints[1] = i * 3 + 1;
-		currentFace->thePoints[2] = i * 3 + 2;
+		currentFace->thePoints[0] = triangles[i * 3];
+		currentFace->thePoints[1] = triangles[i * 3 + 1];
+		currentFace->thePoints[2] = triangles[i * 3 + 2];
 
 		/*		currentFace->theNormals[0] =  m_vFaces[i].m_uiNormalIdx[0];
 				currentFace->theNormals[1] =  m_vFaces[i].m_uiNormalIdx[1];
@@ -231,19 +231,26 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 
 		//currentFace->materialId = m_vFaces[i].matId;
 	}
-
+	//cout << "verts:\n";
+	int aaaa = 0;
 	//Load the First Frame into the threeDModel
 	model.theVerts = new Vector3d[model.numberOfVertices];
 	for (int i = 0; i < model.numberOfVertices; i++)
 	{
+		aaaa++;
 		float thePoints[3];
 		thePoints[0] = vertices[i * 3];
 		thePoints[1] = vertices[i * 3 + 1];
 		thePoints[2] = vertices[i * 3 + 2];
 		//model.theVerts[i] = Vector3d(thePoints[0], thePoints[1], thePoints[2]);
+		//cout << i << "   " <<  thePoints[0] << ", " << thePoints[1] << ", " << thePoints[2] << "\n";
 		model.theVerts[i] = thePoints;
+		if (aaaa == 3)
+		{
+			//cout << i <<  " tri\n";
+			aaaa = 0;
+		}
 	}
-
 	model.theVertNormals = new Vector3d[model.numberOfVertNormals];
 	for (int i = 0; i < model.numberOfVertNormals; i++)
 	{
@@ -252,6 +259,16 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 
 	model.theTexCoords = new Vector2d[0];
 
+	//cout << model.theVerts[4256] << "\n";
+	//cout << model.theVerts[4257] << "\n";
+	//cout << model.theVerts[4258] << "\n";
+	//X: -1.5 Y : -10.5 Z : -1.5
+	//X : -1.5 Y : -10.5 Z : -1.5
+	//X : -4.5 Y : -10.5 Z : -4.5
+
+	//-1.5, -10.5, -1.5
+	//- 4.5, -10.5, -4.5
+	//- 4.5, -10.5, -1.5
 
 	model.theMaterials = new aMaterial[0];
 
@@ -317,7 +334,7 @@ void NoiseChunk::applyTerrain()
 
 glm::vec3 NoiseChunk::interpolateVerts(glm::vec4 v1, glm::vec4 v2) {
 	float t = (surfaceLevel - v1.w) / (v2.w - v1.w);
-	return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
+	//return glm::vec3(v1) + t * (glm::vec3(v2) - glm::vec3(v1));
 	glm::vec3 pos = glm::vec3(glm::vec3(v1) + glm::vec3(v2));
 	return pos * 0.5f;
 }

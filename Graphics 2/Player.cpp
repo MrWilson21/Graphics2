@@ -36,7 +36,7 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
 	//model.drawBoundingBox(myBasicShader);
-	model.drawOctreeLeaves(myBasicShader);
+	//model.drawOctreeLeaves(myBasicShader);
 }
 
 void Player::init(OBJLoader* objLoader, Shader* myShader)
@@ -73,10 +73,12 @@ void Player::move()
 	if (App::keys[VK_UP])
 	{
 		rotationForce.z += spinForce * App::deltaTime;
+		//position.y += accelerationForce * App::deltaTime;
 	}
 	if (App::keys[VK_DOWN])
 	{
 		rotationForce.z += -spinForce * App::deltaTime;
+		//position.y -= accelerationForce * App::deltaTime;
 	}
 	if (App::keys[VK_LEFT])
 	{

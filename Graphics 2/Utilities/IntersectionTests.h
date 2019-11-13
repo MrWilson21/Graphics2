@@ -15,7 +15,7 @@
 class IntersectionTests
 {
 public:
-	typedef float real;
+	/*typedef float real;
 
 	static int tri_tri_overlap_test_3d(real p1[3], real q1[3], real r1[3],
 		real p2[3], real q2[3], real r2[3]);
@@ -34,10 +34,16 @@ public:
 		real p2[3], real q2[3], real r2[3],
 		int * coplanar,
 		real source[3], real target[3]);
+*/
+
+
+
+	static int NoDivTriTriIsect(float V0[3], float V1[3], float V2[3],
+		float U0[3], float U1[3], float U2[3]);
 
 	static int planeBoxOverlap(float normal[3], float d, float maxbox[3]);
 	static int planeBoxOverlap(double normal[3], double d, double maxbox[3]);
 	static int triBoxOverlap(float boxhalfsize[3], float v0[3], float v1[3], float v2[3]);
 	static int triBoxOverlap(double boxcenter[3], double boxhalfsize[3], double triverts[3][3]);
-	static bool OBB_RAY_Intersect(float fromRay[3], float toRay[3]);
+	//static bool OBB_RAY_Intersect(float fromRay[3], float toRay[3]);
 };
