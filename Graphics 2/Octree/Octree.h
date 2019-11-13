@@ -15,14 +15,10 @@ class Shader;
 class Octree
 {
 private:
-	double minX, minY, minZ, maxX, maxY, maxZ;
-	Octree* children[8];
 	int Level;	
 	int* PrimitiveList;
 	int PrimitiveListSize;
 
-	int* VertexList;
-	int VertexListSize;
 
 	Box* box;
 
@@ -43,6 +39,10 @@ public:
 	Octree* getChild(int i);
 	int getLevel();
 	void processVerticesByLeaf(ThreeDModel* model);
+	int* VertexList;
+	int VertexListSize;
+	Octree* children[8];
+	double minX, minY, minZ, maxX, maxY, maxZ;
 };
 
 #endif _OCTREE_H

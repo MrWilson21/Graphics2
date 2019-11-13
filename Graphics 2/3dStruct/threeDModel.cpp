@@ -166,10 +166,6 @@ void ThreeDModel::constructOctree()
 {
 	double minX,minY,minZ,maxX,maxY,maxZ;
 	calcBoundingBox(minX, minY, minZ, maxX, maxY, maxZ);
-	cout << "start\n";
-	cout << minX << " " << minY << " " << minZ << endl;
-	cout << maxX << " " << maxY << " " << maxZ << endl;
-	cout << "end\n";
 	octree = new Octree();
 	octree->start(0, minX, minY, minZ, maxX, maxY, maxZ, this);
 

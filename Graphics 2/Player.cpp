@@ -35,7 +35,7 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &(*ProjectionMatrix)[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
-	model.drawBoundingBox(myBasicShader);
+	//model.drawBoundingBox(myBasicShader);
 	model.drawOctreeLeaves(myBasicShader);
 }
 
@@ -59,7 +59,7 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
 		model.initDrawElements();
 		model.initVBO(myShader);
-		model.deleteVertexFaceData();
+		//model.deleteVertexFaceData();
 
 	}
 	else

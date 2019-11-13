@@ -10,6 +10,8 @@
 #include "worldBox.h"
 #include "wave.h"
 #include "Skybox.h"
+#include "Octree/Octree.h"
+#include "Utilities/IntersectionTests.h"
 
 Shader* myShader;  ///shader object 
 Shader* myBasicShader;
@@ -70,6 +72,7 @@ glm::vec2 mouseDifference = glm::vec2(0, 0);
 float spinSpeed = 0.005;
 
 float camMode = 1;
+int collisionCount = 0;
 
 //OPENGL FUNCTION PROTOTYPES
 void display();				//called in winmain to draw everything to the screen
@@ -79,6 +82,27 @@ void update();				//called in winmain to update variables
 void genNewChunk(int i, int j, bool* finished);
 void updateRenderStatus();
 void updateThreads();
+void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainModel);
+
+struct vec3;
+struct OBB;
+bool getSeparatingPlane(const vec3& RPos, const vec3& Plane, const OBB& box1, const OBB&box2);
+bool getCollision(const OBB& box1, const OBB&box2);
+
+struct vec3
+{
+	float x, y, z;
+	vec3 operator- (const vec3 & rhs) const { return{ x - rhs.x, y - rhs.y, z - rhs.z }; }
+	float operator* (const vec3 & rhs) const { return{ x * rhs.x + y * rhs.y + z * rhs.z }; } // DOT PRODUCT
+	vec3 operator^ (const vec3 & rhs) const { return{ y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x }; } // CROSS PRODUCT
+	vec3 operator* (const float& rhs)const { return vec3{ x * rhs, y * rhs, z * rhs }; }
+};
+
+// set the relevant elements of our oriented bounding box
+struct OBB
+{
+	vec3 Pos, AxisX, AxisY, AxisZ, Half_size;
+};
 
 /*************    START OF OPENGL FUNCTIONS   ****************/
 void display()									
@@ -140,8 +164,8 @@ void display()
 		{
 			if (terrainRenderStatus[i][j])
 			{
-				//terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
-				terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
+				terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
+				//terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
 			}
 		}
 	}
@@ -187,6 +211,7 @@ void reshape(int width, int height)		// Resize the OpenGL window
 	//Set the projection matrix
 	ProjectionMatrix = glm::perspective(60.0f, (GLfloat)App::screenWidth/(GLfloat)App::screenHeight, 1.0f, 50000.0f);
 }
+
 void init()
 {
 	SetThreadPriority(GetCurrentThread(), REALTIME_PRIORITY_CLASS);
@@ -302,6 +327,146 @@ void update()
 	{
 		camMode = 2;
 	}
+	collisionCount = 0;
+	for (int i = 0; i < chunksAmount; i++)
+	{
+		for (int j = 0; j < chunksAmount; j++)
+		{
+			if (terrainRenderStatus[i][j])
+			{
+				doCollisions(player.model.octree, terrainGenerator[i][j].model.octree, &terrainGenerator[i][j].model);
+			}
+		}
+	}
+	cout << "collision count: " << collisionCount << "\n";
+}
+
+void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainModel)
+{
+	// create two obbs
+	OBB A, B;
+
+	// set the half size
+	A.Half_size.x = (playerOct->maxX - playerOct->minX) / 2.0f;
+	A.Half_size.y = (playerOct->maxY - playerOct->minY) / 2.0f;
+	A.Half_size.z = (playerOct->maxZ - playerOct->minZ) / 2.0f;
+
+	// set the first obb's properties
+	A.Pos = { (float)playerOct->minX + A.Half_size.x + player.position.x, (float)playerOct->minY + A.Half_size.y + player.position.y, (float)playerOct->minZ + A.Half_size.z + player.position.z}; // set its center position
+
+	// set the axes orientation
+	//A.AxisX = { 1.f, 0.f, 0.f };
+	//A.AxisY = { 0.f, 1.f, 0.f };
+	//A.AxisZ = { 0.f, 0.f, 1.f };
+	A.AxisX = { player.objectRotation[0][0], player.objectRotation[0][1], player.objectRotation[0][2] };
+	A.AxisY = { player.objectRotation[1][0], player.objectRotation[1][1], player.objectRotation[2][2] };
+	A.AxisZ = { player.objectRotation[2][0], player.objectRotation[2][1], player.objectRotation[1][2] };
+
+	// set the half size
+	B.Half_size.x = (terrainOct->maxX - terrainOct->minX) / 2.0f;
+	B.Half_size.y = (terrainOct->maxY - terrainOct->minY) / 2.0f;
+	B.Half_size.z = (terrainOct->maxZ - terrainOct->minZ) / 2.0f;
+
+	// set the second obb's properties
+	B.Pos = { (float)terrainOct->minX + B.Half_size.x, (float)terrainOct->minY + B.Half_size.y, (float)terrainOct->minZ + B.Half_size.z }; // set its center position
+
+	// set the axes orientation
+	B.AxisX = { 1.f, 0.f, 0.f };
+	B.AxisY = { 0.f, 1.f, 0.f };
+	B.AxisZ = { 0.f, 0.f, 1.f };
+
+	//cout << "start\n";
+	//cout << A.Half_size.x << ", " << A.Half_size.y  << ", " << A.Half_size.z << ", " << A.Pos.x << ", " << A.Pos.y << ", " << A.Pos.z << "\n";
+	//cout << B.Half_size.x << ", " << B.Half_size.y << ", " << B.Half_size.z << ", " << B.Pos.x << ", " << B.Pos.y << ", " << B.Pos.z << "\n";
+	if (getCollision(A, B))
+	{
+		if (playerOct->getLevel() >= MAX_DEPTH) //leaf
+		{
+			if (terrainOct->VertexListSize > 0)
+			{
+				for (int i = 0; i < playerOct->VertexListSize / 3; i++)
+				{	
+					for (int j = 0; j < terrainOct->VertexListSize / 3; j++)
+					{
+						float p1[3];
+						float p2[3];
+						float p3[3];
+
+						float t1[3];
+						float t2[3];
+						float t3[3];
+
+						t1[0] = terrainModel->theVerts[terrainOct->VertexList[j * 3]][0];
+						t1[1] = terrainModel->theVerts[terrainOct->VertexList[j * 3]][1];
+						t1[2] = terrainModel->theVerts[terrainOct->VertexList[j * 3]][2];
+						t2[0] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 1]][0];
+						t2[1] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 1]][1];
+						t2[2] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 1]][2];
+						t3[0] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 2]][0];
+						t3[1] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 2]][1];
+						t3[2] = terrainModel->theVerts[terrainOct->VertexList[j * 3 + 2]][2];
+
+						glm::mat4 g = glm::mat4(1.0);
+						g = glm::translate(g, player.position);
+						g = g * player.objectRotation;
+
+						p1[0] = player.model.theVerts[playerOct->VertexList[i * 3]][0];
+						p1[1] = player.model.theVerts[playerOct->VertexList[i * 3]][1];
+						p1[2] = player.model.theVerts[playerOct->VertexList[i * 3]][2];
+						p2[0] = player.model.theVerts[playerOct->VertexList[i * 3 + 1]][0];
+						p2[1] = player.model.theVerts[playerOct->VertexList[i * 3 + 1]][1];
+						p2[2] = player.model.theVerts[playerOct->VertexList[i * 3 + 1]][2];
+						p3[0] = player.model.theVerts[playerOct->VertexList[i * 3 + 2]][0];
+						p3[1] = player.model.theVerts[playerOct->VertexList[i * 3 + 2]][1];
+						p3[2] = player.model.theVerts[playerOct->VertexList[i * 3 + 2]][2];
+
+						glm::vec4 a = g * glm::vec4(p1[0], p1[1], p1[2], 1.0f);
+						glm::vec4 b = g * glm::vec4(p2[0], p2[1], p2[2], 1.0f);
+						glm::vec4 c = g * glm::vec4(p3[0], p3[1], p3[2], 1.0f);
+
+						p1[0] = a.x;
+						p1[1] = a.y;
+						p1[2] = a.z;
+						p2[0] = b.x;
+						p2[1] = b.y;
+						p2[2] = b.z;
+						p3[0] = c.x;
+						p3[1] = c.y;
+						p3[2] = c.z;
+
+						if (IntersectionTests::tri_tri_overlap_test_3d(p1, p2, p3, t1, t2, t3) == 1)
+						{
+							collisionCount++;
+							Vector3d n = terrainModel->theFaceNormals[j];
+							glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
+							player.velocity = glm::reflect(player.velocity, normal);
+							player.position += player.velocity * (float)App::deltaTime;
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			//For each oct in player
+			for (int i = 0; i < 8; i++)
+			{
+				//If valid player oct
+				if (playerOct->children[i] != NULL)
+				{
+					//For each oct in terrain
+					for (int j = 0; j < 8; j++)
+					{
+						//If valid terrain oct
+						if (terrainOct->children[j] != NULL)
+						{
+							doCollisions(playerOct->children[i], terrainOct->children[j], terrainModel);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void genNewChunk(int i, int j, bool* finished)
@@ -356,6 +521,42 @@ void updateThreads()
 		}
 	}
 }
+
+// check if there's a separating plane in between the selected axes
+bool getSeparatingPlane(const vec3& RPos, const vec3& Plane, const OBB& box1, const OBB&box2)
+{
+	return (fabs(RPos*Plane) >
+		(fabs((box1.AxisX*box1.Half_size.x)*Plane) +
+			fabs((box1.AxisY*box1.Half_size.y)*Plane) +
+			fabs((box1.AxisZ*box1.Half_size.z)*Plane) +
+			fabs((box2.AxisX*box2.Half_size.x)*Plane) +
+			fabs((box2.AxisY*box2.Half_size.y)*Plane) +
+			fabs((box2.AxisZ*box2.Half_size.z)*Plane)));
+}
+
+// test for separating planes in all 15 axes
+bool getCollision(const OBB& box1, const OBB&box2)
+{
+	static vec3 RPos;
+	RPos = box2.Pos - box1.Pos;
+
+	return !(getSeparatingPlane(RPos, box1.AxisX, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisY, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisZ, box1, box2) ||
+		getSeparatingPlane(RPos, box2.AxisX, box1, box2) ||
+		getSeparatingPlane(RPos, box2.AxisY, box1, box2) ||
+		getSeparatingPlane(RPos, box2.AxisZ, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisX^box2.AxisX, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisX^box2.AxisY, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisX^box2.AxisZ, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisY^box2.AxisX, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisY^box2.AxisY, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisY^box2.AxisZ, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisZ^box2.AxisX, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisZ^box2.AxisY, box1, box2) ||
+		getSeparatingPlane(RPos, box1.AxisZ^box2.AxisZ, box1, box2));
+}
+
 /**************** END OPENGL FUNCTIONS *************************/
 
 //WIN32 functions

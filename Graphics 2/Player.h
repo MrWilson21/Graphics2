@@ -4,7 +4,6 @@
 class Player
 {
 private:
-	ThreeDModel model;
 	glm::mat4 ModelViewMatrix;
 
 	//Material properties
@@ -25,6 +24,8 @@ private:
 	float staticDrag = 0.5;
 
 public:
+	ThreeDModel model;
+
 	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::mat4 objectRotation;

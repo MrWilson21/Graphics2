@@ -264,7 +264,7 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 	//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
 	//model.initDrawElements();
 	//model.initVBO(myShader);
-	model.deleteVertexFaceData();
+	//model.deleteVertexFaceData();
 }
 
 void NoiseChunk::applyTerrain()
