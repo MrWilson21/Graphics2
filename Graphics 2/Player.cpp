@@ -29,20 +29,28 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(ModelViewMatrix));
 	glUniformMatrix3fv(glGetUniformLocation(myShader->handle(), "NormalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
 
-	model.drawElementsUsingVBO(myShader);
+	if (!App::keys[VK_INSERT])
+	{
+		modelCollider.drawElementsUsingVBO(myShader);
+	}
+	else
+	{
+		model1.drawElementsUsingVBO(myShader);
+	}
 
 	glUseProgram(myBasicShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &(*ProjectionMatrix)[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
 	//model.drawBoundingBox(myBasicShader);
-	//model.drawOctreeLeaves(myBasicShader);
+	modelCollider.drawOctreeLeaves(myBasicShader);
+
 }
 
 void Player::init(OBJLoader* objLoader, Shader* myShader)
 {
 	cout << " loading model " << endl;
-	if (objLoader->loadModel("TestModels/axes.obj", model))//returns true if the model is loaded, puts the model in the model parameter
+	if (objLoader->loadModel("TestModels/axes.obj", model1))//returns true if the model is loaded, puts the model in the model parameter
 	{
 		cout << " model loaded " << endl;
 
@@ -53,12 +61,12 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 		//model.centreOnZero();
 
 
-		model.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
+		model1.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
 
 
 		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
-		model.initDrawElements();
-		model.initVBO(myShader);
+		model1.initDrawElements();
+		model1.initVBO(myShader);
 		//model.deleteVertexFaceData();
 
 	}
@@ -66,6 +74,35 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 	{
 		cout << " model failed to load " << endl;
 	}
+	cout << " loading model " << endl;
+	if (objLoader->loadModel("TestModels/subCollider.obj", modelCollider))//returns true if the model is loaded, puts the model in the model parameter
+	{
+		cout << " model loaded " << endl;
+
+		//if you want to translate the object to the origin of the screen,
+		//first calculate the centre of the object, then move all the vertices
+		//back so that the centre is on the origin.
+		//model.calcCentrePoint();
+		//model.centreOnZero();
+
+
+		modelCollider.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
+
+
+		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
+		modelCollider.initDrawElements();
+		modelCollider.initVBO(myShader);
+		//model.deleteVertexFaceData();
+
+	}
+	else
+	{
+		cout << " model failed to load " << endl;
+	}
+	//for (int i = 0; i < modelCollider.numberOfVertices; i++)
+	//{
+	//	cout << modelCollider.theVerts[i] << "\n";
+	//}
 }
 
 void Player::move()

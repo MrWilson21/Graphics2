@@ -24,7 +24,8 @@ private:
 	float staticDrag = 0.5;
 
 public:
-	ThreeDModel model;
+	ThreeDModel model1;
+	ThreeDModel modelCollider;
 
 	glm::vec3 position;
 	glm::vec3 rotation;

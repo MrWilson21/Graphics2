@@ -36,6 +36,10 @@ public:
 	unsigned int m_vboID[3];		// two VBOs - used for colours, vertex and normals data
 	GLuint ibo;                     //identifier for the triangle indices
 
+	unsigned int m_vaoIDC;		    // vertex array object
+	unsigned int m_vboIDC[3];		// two VBOs - used for colours, vertex and normals data
+	GLuint iboC;                     //identifier for the triangle indices
+
 	int numOfVerts;
 	int numOfTris;
 	float* verts;
@@ -51,6 +55,14 @@ private:
 	vector<float> normals;
 	vector<unsigned int> triangles;
 
+	vector<float> verticesCollider;
+	vector<float> coloursCollider;
+	vector<float> normalsCollider;
+	vector<unsigned int> trianglesCollider;
+	int numOfVertsCollider;
+	int numOfTrisCollider;
+
+	void genTerrainCollider(glm::vec3 offset);
 	glm::vec3 interpolateVerts(glm::vec4 v1, glm::vec4 v2);
 	glm::vec3 colourSelector(float y, glm::vec3 normal);
 	glm::vec3 offset;
