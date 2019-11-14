@@ -10,7 +10,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub main diffuse.png
+map_Kd submaindiffuse.png
 
 newmtl Material.012
 Ns 225.000000
@@ -21,7 +21,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub floats
+map_Kd subfloats.png
 
 newmtl Material.013
 Ns 225.000000
@@ -32,7 +32,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub floats
+map_Kd subfloats.png
 
 newmtl None
 Ns 500
