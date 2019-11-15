@@ -27,6 +27,9 @@ private:
 	float rotorSpin = 0;
 	float rotorSpeed = 20;
 
+	float riseForce = 20;
+	float sinkForce = 15;
+
 public:
 	ThreeDModel model1;
 	ThreeDModel modelCollider;

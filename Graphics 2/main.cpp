@@ -29,7 +29,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int renderDist = 5;
+const int renderDist = 12;
 const int chunksAmount = renderDist * 2 + 1;
 NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
 bool terrainGenStatus[chunksAmount][chunksAmount];
@@ -143,7 +143,7 @@ void display()
 	}
 	else
 	{
-		viewingMatrix = glm::lookAt(player.position - player.localForward * 4.5f, player.position - player.localForward * 5.5f, glm::vec3(0, 1, 0));
+		viewingMatrix = glm::lookAt(player.position - player.localForward * 4.5f, player.position - player.localForward * 5.5f, player.localUp);
 	}
 	glm::vec3 cameraPos = player.position + player.localForward * 15.0f + player.localUp * 5.0f;
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);

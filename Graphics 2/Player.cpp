@@ -158,17 +158,9 @@ void Player::move()
 	{
 		rotationForce.y += -spinForce * App::deltaTime;
 	}
-	if (App::keys[VK_SPACE])
+	if (App::keys[VK_BACK] && rotationForce.x < 499.0)
 	{
-		rotationForce.x += spinForce * App::deltaTime;
-	}
-	if (App::keys[VK_SHIFT])
-	{
-		rotationForce.x += -spinForce * App::deltaTime;
-	}
-	if (App::keys[VK_BACK] && rotationForce.x < 1.0)
-	{
-		rotationForce.x += 5;
+		rotationForce.x = 500;
 	}
 
 	float xDecrement = (abs(rotationForce.x) * linearRotationDamping + staticRotationDamping) * App::deltaTime;
@@ -266,6 +258,14 @@ void Player::move()
 	if (App::keys[0x53])
 	{
 		velocity += (glm::vec3)glm::translate(objectRotation, glm::vec3(accelerationForce * App::deltaTime, 0, 0))[3];
+	}
+	if (App::keys[VK_SHIFT])
+	{
+		velocity.y -= sinkForce * App::deltaTime;
+	}
+	if (App::keys[VK_SPACE])
+	{
+		velocity.y += riseForce * App::deltaTime;
 	}
 	
 	float newVelMagnitude = glm::length(velocity) - ((glm::length(velocity) * linearDrag + staticDrag) * App::deltaTime);
