@@ -1,5 +1,5 @@
 # Blender MTL File: 'sub1.blend'
-# Material Count: 5
+# Material Count: 4
 
 newmtl Material.005
 Ns 225.000000
@@ -10,18 +10,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\sub rotor hub.png
-
-newmtl Material.006
-Ns 225.000000
-Ka 1.000000 1.000000 1.000000
-Kd 0.800000 0.800000 0.800000
-Ks 0.500000 0.500000 0.500000
-Ke 0.0 0.0 0.0
-Ni 1.450000
-d 1.000000
-illum 2
-map_Kd textures\\sub rotor.png
+map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub rotor hub
 
 newmtl Material.007
 Ns 225.000000
@@ -32,7 +21,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\sub main diffuse.png
+map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub main diffuse.png
 
 newmtl Material.008
 Ns 225.000000
@@ -43,7 +32,7 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\sub floats.png
+map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub floats
 
 newmtl Material.009
 Ns 225.000000
@@ -54,4 +43,4 @@ Ke 0.0 0.0 0.0
 Ni 1.450000
 d 1.000000
 illum 2
-map_Kd textures\\sub floats.png
+map_Kd C:\\Users\\harry\\source\\repos\\graphics2\\Graphics 2\\Blender files\\textures\\sub floats

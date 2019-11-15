@@ -162,7 +162,6 @@
     <None Include="nvImage.dll" />
     <None Include="nvImaged.dll" />
     <None Include="objLoadingWIN32.vcproj" />
-    <None Include="TestModels\subCollider.mtl" />
     <None Include="zlib1.dll" />
   </ItemGroup>
   <ItemGroup>
@@ -192,9 +191,6 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="objLoadingWIN32.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="TestModels\subCollider.obj" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -312,7 +312,7 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 
 void NoiseChunk::genTerrainCollider(glm::vec3 offset)
 { 
-	const int colliderScaleDownFactor = 2;
+	const int colliderScaleDownFactor = 1;
 	const int newSize = size / colliderScaleDownFactor;
 	const int newHeight = height / colliderScaleDownFactor;
 	float newChunkScale = chunkScale * colliderScaleDownFactor;

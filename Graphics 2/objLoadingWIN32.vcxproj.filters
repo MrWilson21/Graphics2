@@ -210,7 +210,6 @@
     <None Include="glslfiles\water.frag" />
     <None Include="glslfiles\wave.vert" />
     <None Include="glslfiles\wave.frag" />
-    <None Include="TestModels\subCollider.mtl" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="nvImage.lib" />
@@ -277,8 +276,5 @@
     <ResourceCompile Include="objLoadingWIN32.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="TestModels\subCollider.obj" />
   </ItemGroup>
 </Project>

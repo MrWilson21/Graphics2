@@ -20,8 +20,13 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	ModelViewMatrix = App::CloneMatrix(*viewingMatrix);
 	//ModelViewMatrix = glm::mat4(1.0);
 	//ModelViewMatrix = glm::scale(ModelViewMatrix, glm::vec3(3, 3, 3));
+	glm::mat4 ModelViewMatrixR = App::CloneMatrix(*viewingMatrix);
+
 	ModelViewMatrix = glm::translate(ModelViewMatrix, position);
 	ModelViewMatrix = ModelViewMatrix * objectRotation;
+
+	ModelViewMatrixR = glm::translate(ModelViewMatrixR, position);
+	ModelViewMatrixR = ModelViewMatrixR * RotorRotation;
 
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
@@ -29,13 +34,17 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	glm::mat3 normalMatrix = glm::inverseTranspose(glm::mat3(ModelViewMatrix));
 	glUniformMatrix3fv(glGetUniformLocation(myShader->handle(), "NormalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
 
-	if (!App::keys[VK_INSERT])
+	if (App::keys[VK_INSERT])
 	{
 		modelCollider.drawElementsUsingVBO(myShader);
 	}
 	else
 	{
 		model1.drawElementsUsingVBO(myShader);
+		normalMatrix = glm::inverseTranspose(glm::mat3(ModelViewMatrixR));
+		glUniformMatrix3fv(glGetUniformLocation(myShader->handle(), "NormalMatrix"), 1, GL_FALSE, &normalMatrix[0][0]);
+		glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrixR[0][0]);
+		rotor.drawElementsUsingVBO(myShader);
 	}
 
 	glUseProgram(myBasicShader->handle());  // use the shader
@@ -43,7 +52,7 @@ void Player::display(Shader* myShader, Shader* myBasicShader, glm::mat4* viewing
 	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &ModelViewMatrix[0][0]);
 
 	//model.drawBoundingBox(myBasicShader);
-	modelCollider.drawOctreeLeaves(myBasicShader);
+	//modelCollider.drawOctreeLeaves(myBasicShader);
 
 }
 
@@ -67,6 +76,30 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
 		model1.initDrawElements();
 		model1.initVBO(myShader);
+		//model.deleteVertexFaceData();
+
+	}
+	else
+	{
+		cout << " model failed to load " << endl;
+	}
+	cout << " loading model " << endl;
+	if (objLoader->loadModel("TestModels/rotor.obj", rotor))//returns true if the model is loaded, puts the model in the model parameter
+	{
+		cout << " model loaded " << endl;
+
+		//if you want to translate the object to the origin of the screen,
+		//first calculate the centre of the object, then move all the vertices
+		//back so that the centre is on the origin.
+		//model.calcCentrePoint();
+		//model.centreOnZero();
+
+		rotor.calcVertNormalsUsingOctree();  //the method will construct the octree if it hasn't already been created.
+
+
+		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
+		rotor.initDrawElements();
+		rotor.initVBO(myShader);
 		//model.deleteVertexFaceData();
 
 	}
@@ -166,6 +199,7 @@ void Player::move()
 	currentRotation = glm::quat_cast(objectRotation);
 
 	glm::mat4 matrixX, matrixXY;
+	glm::mat4 matrixXR, matrixXYR;
 
 	glm::vec3 localZSub = glm::vec3(objectRotation[2][0], objectRotation[2][1], objectRotation[2][2]);
 	
@@ -188,7 +222,13 @@ void Player::move()
 	b = i - p;
 	dist = glm::dot(b, globalY);
 
-	rotationForce.z -= pow(dist, 3) * App::deltaTime * zCorrectionForce;
+	rotationForce.z -= pow(dist, 2) * App::deltaTime * zCorrectionForce * (dist < 0 ? -1 : 1);
+	if (rotationForce.z < 8 || rotationForce.z > -12)
+	{
+		rotationForce.z -= (dist < 0 ? -1 : 1) * staticZCorrectionForce * App::deltaTime;
+	}
+
+	rotorSpin += glm::dot(localForward, velocity) * App::deltaTime * rotorSpeed;
 
 	//float angle = glm::dot(b, g);
 	//cout << localZSub.x << "," << localZSub.y << "," << localZSub.z << "\n";
@@ -205,6 +245,9 @@ void Player::move()
 	//rotation about the local z axis
 	newRotation = glm::angleAxis(rotationForce.z * (float)App::deltaTime, glm::vec3(matrixXY[2][0], matrixXY[2][1], matrixXY[2][2]));
 	objectRotation = glm::mat4_cast(newRotation) * matrixXY;
+
+	newRotation = glm::angleAxis(rotorSpin, glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
+	RotorRotation = glm::mat4_cast(newRotation) * objectRotation;
 
 	//newRotation = glm::angleAxis((float)(glm::degrees(angle) * App::deltaTime * 0.1), glm::vec3(objectRotation[0][0], objectRotation[0][1], objectRotation[0][2]));
 	//objectRotation = glm::mat4_cast(newRotation) * objectRotation;

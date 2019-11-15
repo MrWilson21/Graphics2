@@ -12,24 +12,30 @@ private:
 	float Material_Specular[4] = { 0.9f,0.9f,0.8f,1.0f };
 	float Material_Shininess = 50;
 
-	float spinForce = 250;
+	float spinForce = 350; //250;
 	glm::vec3 rotationForce;
 	float linearRotationDamping = 4;
 	float staticRotationDamping = 0.5;
 	float xCorrectionForce = 300;
-	float zCorrectionForce = 500;
+	float zCorrectionForce = 430;
+	float staticZCorrectionForce = 15;
 
-	float accelerationForce = 30;
+	float accelerationForce = 150;
 	float linearDrag = 1;
 	float staticDrag = 0.5;
+
+	float rotorSpin = 0;
+	float rotorSpeed = 20;
 
 public:
 	ThreeDModel model1;
 	ThreeDModel modelCollider;
+	ThreeDModel rotor;
 
 	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::mat4 objectRotation;
+	glm::mat4 RotorRotation;
 
 	glm::vec3 velocity;
 
