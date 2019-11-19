@@ -136,10 +136,12 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 	//{
 	//	cout << modelCollider.theVerts[i] << "\n";
 	//}
+	waterHeight = App::waterHeight;
 }
 
 void Player::move()
 {
+	oldRotation = objectRotation;
 	if (App::keys[VK_UP])
 	{
 		rotationForce.z += spinForce * App::deltaTime;
@@ -214,10 +216,13 @@ void Player::move()
 	b = i - p;
 	dist = glm::dot(b, globalY);
 
-	rotationForce.z -= pow(dist, 2) * App::deltaTime * zCorrectionForce * (dist < 0 ? -1 : 1);
-	if (rotationForce.z < 8 || rotationForce.z > -12)
+	if (dist > 0.0025 || dist < -0.0025)
 	{
-		rotationForce.z -= (dist < 0 ? -1 : 1) * staticZCorrectionForce * App::deltaTime;
+		rotationForce.z -= pow(dist, 2) * App::deltaTime * zCorrectionForce * (dist < 0 ? -1 : 1);
+		if (rotationForce.z < 8 || rotationForce.z > -12)
+		{
+			rotationForce.z -= (dist < 0 ? -1 : 1) * staticZCorrectionForce * App::deltaTime;
+		}
 	}
 
 	rotorSpin += glm::dot(localForward, velocity) * App::deltaTime * rotorSpeed;
@@ -251,21 +256,32 @@ void Player::move()
 
 	//cout << rotationForce.x << ", " << rotationForce.y << ", " << rotationForce.z << "\n";
 
-	if (App::keys[0x57])
+	bool aboveWater = position.y > waterHeight + 0.2;
+
+	if (App::keys[0x57] && !aboveWater)
 	{
 		velocity += (glm::vec3)glm::translate(objectRotation, glm::vec3(-accelerationForce * App::deltaTime, 0, 0))[3];
 	}
-	if (App::keys[0x53])
+	if (App::keys[0x53] && !aboveWater)
 	{
 		velocity += (glm::vec3)glm::translate(objectRotation, glm::vec3(accelerationForce * App::deltaTime, 0, 0))[3];
 	}
-	if (App::keys[VK_SHIFT])
+	if (App::keys[VK_SHIFT] && !aboveWater)
 	{
 		velocity.y -= sinkForce * App::deltaTime;
 	}
-	if (App::keys[VK_SPACE])
+	if (App::keys[VK_SPACE] && !aboveWater)
 	{
 		velocity.y += riseForce * App::deltaTime;
+	}
+	if (position.y >= waterHeight)
+	{
+		float dist = (position.y - waterHeight);
+		if (dist > 1.0)
+		{
+			dist = 1.0;
+		}
+		velocity.y -= gravityForce * App::deltaTime * pow(dist, 3);
 	}
 	
 	float newVelMagnitude = glm::length(velocity) - ((glm::length(velocity) * linearDrag + staticDrag) * App::deltaTime);

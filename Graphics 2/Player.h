@@ -30,6 +30,9 @@ private:
 	float riseForce = 20;
 	float sinkForce = 15;
 
+	float gravityForce = 100;
+	float waterHeight;
+
 public:
 	ThreeDModel model1;
 	ThreeDModel modelCollider;
@@ -38,6 +41,7 @@ public:
 	glm::vec3 position;
 	glm::vec3 rotation;
 	glm::mat4 objectRotation;
+	glm::mat4 oldRotation;
 	glm::mat4 RotorRotation;
 
 	glm::vec3 velocity;

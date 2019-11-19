@@ -59,7 +59,7 @@ void main(void)
 	}
 	if(depthFactor > 0)
 	{
-		depthFactor = clamp(depthFactor, 0.4, 1000.0);
+		depthFactor = clamp(depthFactor, 0.5, 1.0);
 	}
 
 /*	float xDiff = pow(ex_PositionEye.x - ex_PositionVert.x, 2);
@@ -101,10 +101,11 @@ void main(void)
 	float fogFactor = (fogEnd - ex_PositionEye.z)/(fogEnd-fogStart);
 	//fogFactor = depthFactor / 50;
 	//fogFactor = (fogEnd + ex_PositionVert.y)/(fogEnd-fogStart);
-	fogFactor = (fogEnd + disFactor )/(fogEnd-fogStart);
+	fogFactor = (fogEnd + disFactor * depthFactor)/(fogEnd-fogStart);
 
 	fogFactor = clamp(fogFactor,0.0,1.0);
-	vec4 fogColor = vec4(0.2,0.4,0.65,1.0);
+	vec4 fogColor = mix(vec4(0.2,0.4,0.65,1.0), vec4(0.05,0.4,0.9,1.0), 1-depthFactor);
+	fogColor = vec4(0.2,0.4,0.65,1.0);
 
 	out_Color = vec4(ex_Color,1.0);
 	out_Color = mix(fogColor,vec4(ex_Color, 1.0), fogFactor);

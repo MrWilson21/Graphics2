@@ -29,7 +29,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int renderDist = 12;
+const int renderDist = 1;//12;
 const int chunksAmount = renderDist * 2 + 1;
 NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
 bool terrainGenStatus[chunksAmount][chunksAmount];
@@ -74,6 +74,9 @@ float spinSpeed = 0.005;
 float camMode = 1;
 int collisionCount = 0;
 float timer = 0;
+
+float minBounciness = 0.6;
+float maxVel = 100;
 
 //OPENGL FUNCTION PROTOTYPES
 void display();				//called in winmain to draw everything to the screen
@@ -346,15 +349,6 @@ void update()
 	glm::vec4 b = g * glm::vec4(0,0,0, 1.0f);
 	glm::vec4 c = g * glm::vec4(-1,0,0, 1.0f);
 
-	//if (timer > 0.2)
-	{
-		//cout << "collision count: " << collisionCount << "\n";
-		//App::printVec3(glm::vec3(a));
-		//App::printVec3(glm::vec3(b));
-		//App::printVec3(glm::vec3(c));
-		timer = 0;
-	}
-	timer += App::deltaTime;
 }
 
 void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainModel)
@@ -394,6 +388,7 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 	//cout << "start\n";
 	//cout << A.Half_size.x << ", " << A.Half_size.y  << ", " << A.Half_size.z << ", " << A.Pos.x << ", " << A.Pos.y << ", " << A.Pos.z << "\n";
 	//cout << B.Half_size.x << ", " << B.Half_size.y << ", " << B.Half_size.z << ", " << B.Pos.x << ", " << B.Pos.y << ", " << B.Pos.z << "\n";
+	float timeLeft = 1.0;
 	if (getCollision(A, B))
 	{
 		if (playerOct->getLevel() >= MAX_DEPTH) //leaf
@@ -456,10 +451,6 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 						t3[1] = terrainModel->theVerts[terrainOct->VertexList[j] + 2][1];
 						t3[2] = terrainModel->theVerts[terrainOct->VertexList[j] + 2][2];
 
-						glm::mat4 g = glm::mat4(1.0);
-						g = glm::translate(g, player.position);
-						g = g * player.objectRotation;
-
 						int testCount = 1;
 						int maxTests = 4;
 						float timeUsed = 1;
@@ -475,9 +466,23 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							p3[1] = player.modelCollider.theVerts[playerOct->VertexList[i] + 2][1];
 							p3[2] = player.modelCollider.theVerts[playerOct->VertexList[i] + 2][2];
 
+							glm::mat4 g = glm::mat4(1.0);
+							g = glm::translate(g, player.position);
+							g = g * player.objectRotation;
+
 							glm::vec4 a = g * glm::vec4(p1[0], p1[1], p1[2], 1.0f);
 							glm::vec4 b = g * glm::vec4(p2[0], p2[1], p2[2], 1.0f);
 							glm::vec4 c = g * glm::vec4(p3[0], p3[1], p3[2], 1.0f);
+
+							g = glm::mat4(1.0);
+							g = glm::translate(g, player.position);
+							g = g * player.oldRotation;
+
+							glm::vec4 a2 = g * glm::vec4(p1[0], p1[1], p1[2], 1.0f) - a;
+							glm::vec4 b2 = g * glm::vec4(p2[0], p2[1], p2[2], 1.0f) - b;
+							glm::vec4 c2 = g * glm::vec4(p3[0], p3[1], p3[2], 1.0f) - c;
+
+							glm::vec3 rotationalVel = glm::vec3((a2 + b2 + c2) / 3) / (float)App::deltaTime;
 
 							p1[0] = a.x;
 							p1[1] = a.y;
@@ -491,7 +496,7 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 
 							if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1)
 							{
-								player.position -= player.velocity * (float)(App::deltaTime / pow(2, testCount));
+								player.position -= player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
 								timeUsed -= 1.0 / pow(2, testCount);
 								testCount++;
 								/*cout << "verts\n";
@@ -514,7 +519,7 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							}
 							else
 							{
-								player.position += player.velocity * (float)(App::deltaTime / pow(2, testCount));
+								player.position += player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
 								timeUsed += 1.0 / pow(2, testCount);
 								testCount++;
 							}
@@ -523,9 +528,21 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 								collisionCount++;
 								Vector3d n = terrainModel->theFaceNormals[j];
 								glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
-								player.position -= player.velocity * (float)App::deltaTime * (1-timeUsed);
-								player.velocity = glm::reflect(player.velocity, normal);
-								player.position += player.velocity * (float)App::deltaTime * (1 - timeUsed);
+								player.position -= player.velocity * (float)App::deltaTime * (1-timeUsed) * timeLeft;
+								float a = (1 - pow(glm::length(player.velocity), 2) / pow(maxVel, 2));
+								if (a < 0)
+								{
+									a = 0;
+								}
+								if (a > 1)
+								{
+									a = 1;
+								}
+								float b = minBounciness + (1-minBounciness) * a;
+								player.velocity = glm::reflect(player.velocity + rotationalVel, normal) * b;
+								//player.velocity = glm::reflect(player.velocity, normal);
+								player.position += player.velocity * (float)App::deltaTime * (1 - timeUsed) * timeLeft;
+								timeLeft = (float)App::deltaTime * (1 - timeUsed) * timeLeft;
 							}
 						}
 					}

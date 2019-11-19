@@ -25,6 +25,7 @@
 #include <thread> 
 #include <stdlib.h>
 #include "Images/nvImage.h"
+#include <algorithm>
 
 using namespace std;
 using namespace std::chrono;
