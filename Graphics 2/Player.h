@@ -20,7 +20,7 @@ private:
 	float zCorrectionForce = 430;
 	float staticZCorrectionForce = 15;
 
-	float accelerationForce = 150;
+	float accelerationForce = 80;
 	float linearDrag = 1;
 	float staticDrag = 0.5;
 
