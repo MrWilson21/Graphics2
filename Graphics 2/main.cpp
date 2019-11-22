@@ -29,7 +29,7 @@ float timeScale = 1;
 float amount = 0;
 float temp = 0.002f;
 	
-const int renderDist = 1;//12;
+const int renderDist = 12;
 const int chunksAmount = renderDist * 2 + 1;
 NoiseChunk terrainGenerator[chunksAmount][chunksAmount];
 bool terrainGenStatus[chunksAmount][chunksAmount];

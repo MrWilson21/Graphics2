@@ -8,7 +8,7 @@ NoiseChunk::NoiseChunk()
 
 void NoiseChunk::render()
 {
-	if (!App::keys[VK_INSERT])
+	if (App::keys[VK_INSERT])
 	{
 		//draw objects
 		glBindVertexArray(m_vaoIDC);		// select VAO
@@ -312,10 +312,11 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 
 void NoiseChunk::genTerrainCollider(glm::vec3 offset)
 { 
-	const int colliderScaleDownFactor = 1;
+	const int colliderScaleDownFactor = 2;
 	const int newSize = size / colliderScaleDownFactor;
 	const int newHeight = height / colliderScaleDownFactor;
-	float newChunkScale = chunkScale * colliderScaleDownFactor;
+	float newChunkXScale = chunkScale * float(size - 1) / float(newSize - 1);
+	float newChunkYScale = chunkScale * float(height - 1) / float(newHeight - 1);
 	float newFrequency = chunkFreq;// * 3;
 	float newOctave3Freq = octave3Freq;// * 3;
 	float newOctave2Freq = octave2Freq;// * 3;
@@ -422,9 +423,9 @@ void NoiseChunk::genTerrainCollider(glm::vec3 offset)
 					int b2 = cornerIndexBFromEdge[triangulation[cubeIndex][i + 2]];
 
 					glm::vec3 vert = interpolateVerts(cubeCorners[a0], cubeCorners[b0]);
-					verticesCollider.push_back((vert.x + (offset.x) * (newSize - 1)) * newChunkScale);
-					verticesCollider.push_back((vert.y + (offset.y) * (newSize - 1)) * newChunkScale);
-					verticesCollider.push_back((vert.z + (offset.z) * (newSize - 1)) * newChunkScale);
+					verticesCollider.push_back((vert.x + (offset.x) * (newSize - 1)) * newChunkXScale);
+					verticesCollider.push_back((vert.y + (offset.y) * (newSize - 1)) * newChunkYScale);
+					verticesCollider.push_back((vert.z + (offset.z) * (newSize - 1)) * newChunkXScale);
 					//colours.push_back(colour.x);
 					//colours.push_back(colour.y);
 					//colours.push_back(colour.z);
@@ -433,9 +434,9 @@ void NoiseChunk::genTerrainCollider(glm::vec3 offset)
 					//cout << "(" << a0 << ", " << b0 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					glm::vec3 vert1 = interpolateVerts(cubeCorners[a1], cubeCorners[b1]);
-					verticesCollider.push_back((vert1.x + (offset.x) * (newSize - 1)) * newChunkScale);
-					verticesCollider.push_back((vert1.y + (offset.y) * (newSize - 1)) * newChunkScale);
-					verticesCollider.push_back((vert1.z + (offset.z) * (newSize - 1)) * newChunkScale);
+					verticesCollider.push_back((vert1.x + (offset.x) * (newSize - 1)) * newChunkXScale);
+					verticesCollider.push_back((vert1.y + (offset.y) * (newSize - 1)) * newChunkYScale);
+					verticesCollider.push_back((vert1.z + (offset.z) * (newSize - 1)) * newChunkXScale);
 					//colours.push_back(colour.x);
 					//colours.push_back(colour.y);
 					//colours.push_back(colour.z);
@@ -444,9 +445,9 @@ void NoiseChunk::genTerrainCollider(glm::vec3 offset)
 					//cout << "(" << a1 << ", " << b1 << ")  " << "(" << vert.x << ", " << vert.y << ", " << vert.z << ")\t";
 
 					glm::vec3 vert2 = interpolateVerts(cubeCorners[a2], cubeCorners[b2]);
-					verticesCollider.push_back((vert2.x + (offset.x) * (newSize - 1)) * newChunkScale);
-					verticesCollider.push_back((vert2.y + (offset.y) * (newSize - 1)) * newChunkScale);
-					verticesCollider.push_back((vert2.z + (offset.z) * (newSize - 1)) * newChunkScale);
+					verticesCollider.push_back((vert2.x + (offset.x) * (newSize - 1)) * newChunkXScale);
+					verticesCollider.push_back((vert2.y + (offset.y) * (newSize - 1)) * newChunkYScale);
+					verticesCollider.push_back((vert2.z + (offset.z) * (newSize - 1)) * newChunkXScale);
 					//colours.push_back(colour.x);
 					//colours.push_back(colour.y);
 					//colours.push_back(colour.z);
