@@ -159,24 +159,6 @@ void display()
 	player.display(myShader, myBasicShader, &viewingMatrix, &ProjectionMatrix);
 	glUniformMatrix4fv(glGetUniformLocation(myShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
 
-	glUseProgram(myBasicShader->handle());  // use the shader
-	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
-	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
-	for (int i = 0; i < chunksAmount; i++)
-	{
-		for (int j = 0; j < chunksAmount; j++)
-		{
-			if (terrainRenderStatus[i][j])
-			{
-				//terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
-				//terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
-			}
-		}
-	}
-	//b.render();
-	b2.render();
-	w.render(viewingMatrix, ProjectionMatrix, skybox.cubemapTexture, cameraPos);
-
 	glUseProgram(terrainShader->handle());  // use the shader
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
 	glUniformMatrix4fv(glGetUniformLocation(terrainShader->handle(), "ViewingMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
@@ -202,6 +184,24 @@ void display()
 
 	skybox.render(viewingMatrix, ProjectionMatrix);
 
+	glUseProgram(myBasicShader->handle());  // use the shader
+	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ProjectionMatrix"), 1, GL_FALSE, &ProjectionMatrix[0][0]);
+	glUniformMatrix4fv(glGetUniformLocation(myBasicShader->handle(), "ModelViewMatrix"), 1, GL_FALSE, &viewingMatrix[0][0]);
+	for (int i = 0; i < chunksAmount; i++)
+	{
+		for (int j = 0; j < chunksAmount; j++)
+		{
+			if (terrainRenderStatus[i][j])
+			{
+				//terrainGenerator[i][j].model.drawBoundingBox(myBasicShader);
+				//terrainGenerator[i][j].model.drawOctreeLeaves(myBasicShader);
+			}
+		}
+	}
+	//b.render();
+	b2.render();
+	w.render(viewingMatrix, ProjectionMatrix, skybox.cubemapTexture, cameraPos);
+
 	glFlush();
 }
 
@@ -218,6 +218,10 @@ void reshape(int width, int height)		// Resize the OpenGL window
 
 void init()
 {
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+
 	SetThreadPriority(GetCurrentThread(), REALTIME_PRIORITY_CLASS);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_TIME_CRITICAL);
 

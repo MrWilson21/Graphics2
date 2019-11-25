@@ -41,7 +41,10 @@ void main() {
 	{
 		color = mix(texture(envMap, -r), vec4(0.2,0.4,0.65,1.0), 0.0 - min(-0.4, -(1- fogFactor)));
 	}
-    color.a = 0.5;
+	else
+	{
+		color.a = 0.5;
+	}
     out_Color = color;
 	//out_Color = vec4(position.y - 127.5, 0.0, 0.0, 1.0);
 	//out_Color = vec4(r.y, 0.0, 0.0, 1.0);
