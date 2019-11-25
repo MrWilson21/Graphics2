@@ -494,7 +494,10 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							p3[1] = c.y;
 							p3[2] = c.z;
 
-							if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1)
+							Vector3d n = terrainModel->theFaceNormals[j];
+							glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
+
+							if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1 && glm::dot(player.velocity, normal) < 0)
 							{
 								player.position -= player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
 								timeUsed -= 1.0 / pow(2, testCount);
@@ -526,8 +529,6 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							if (testCount == maxTests)
 							{
 								collisionCount++;
-								Vector3d n = terrainModel->theFaceNormals[j];
-								glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
 								player.position -= player.velocity * (float)App::deltaTime * (1-timeUsed) * timeLeft;
 								float a = (1 - pow(glm::length(player.velocity), 2) / pow(maxVel, 2));
 								if (a < 0)
@@ -539,7 +540,11 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 									a = 1;
 								}
 								float b = minBounciness + (1-minBounciness) * a;
-								player.velocity = glm::reflect(player.velocity + rotationalVel, normal) * b;
+								//if (!glm::dot(player.velocity, normal) < 0)
+								{
+									player.velocity = glm::reflect(player.velocity, normal) * b;
+								}
+								
 								//player.velocity = glm::reflect(player.velocity, normal);
 								player.position += player.velocity * (float)App::deltaTime * (1 - timeUsed) * timeLeft;
 								timeLeft = (float)App::deltaTime * (1 - timeUsed) * timeLeft;

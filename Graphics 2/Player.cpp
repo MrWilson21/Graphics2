@@ -123,8 +123,8 @@ void Player::init(OBJLoader* objLoader, Shader* myShader)
 
 
 		//turn on VBO by setting useVBO to true in threeDmodel.cpp default constructor - only permitted on 8 series cards and higher
-		modelCollider.initDrawElements();
-		modelCollider.initVBO(myShader);
+		//modelCollider.initDrawElements();
+		//modelCollider.initVBO(myShader);
 		//model.deleteVertexFaceData();
 
 	}
