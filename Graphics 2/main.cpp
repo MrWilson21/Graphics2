@@ -497,7 +497,7 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							Vector3d n = terrainModel->theFaceNormals[j];
 							glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
 
-							if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1 && glm::dot(player.velocity, normal) < 0)
+							if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1)
 							{
 								player.position -= player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
 								timeUsed -= 1.0 / pow(2, testCount);
