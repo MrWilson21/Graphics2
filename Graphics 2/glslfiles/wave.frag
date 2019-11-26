@@ -40,6 +40,7 @@ void main() {
 	if(eyePos.y < position.y)
 	{
 		color = mix(texture(envMap, -r), vec4(0.2,0.4,0.65,1.0), 0.0 - min(-0.4, -(1- fogFactor)));
+		color.a = 0.5 + disFactor*0.005;
 	}
 	else
 	{

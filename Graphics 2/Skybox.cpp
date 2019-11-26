@@ -60,7 +60,7 @@ unsigned int Skybox::loadCubemap(vector<std::string> faces)
 		nv::Image img;
 		if (img.loadImageFromFile(faces[i].c_str()))
 		{
-			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, img.getWidth(), img.getHeight(), 0, img.getFormat(), GL_UNSIGNED_BYTE, img.getLevel(0));
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGBA, img.getWidth(), img.getHeight(), 0, img.getFormat(), img.getType(), img.getLevel(0));
 		}
 		else
 		{

@@ -12,6 +12,7 @@ in	vec3 in_Normal;
 out vec3 ex_Color;     // colour leaving the vertex, this will be sent to the fragment shader
 out vec3 ex_PositionEye; 
 out vec3 ex_PositionVert;
+out vec3 ex_normal;
 
 void main(void)
 {

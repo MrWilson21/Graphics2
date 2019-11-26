@@ -123,7 +123,7 @@ void Wave::constructGeometry(Shader* myShader, float minx, float minz, float max
 	}
 	for (int i = 0; i < 8; i++)
 	{
-		sp[i] = 1.3f + 2 * i;
+		sp[i] = 2.5f + 5 * i;
 	}
 
 	for (int i = 0; i < 8; i++)

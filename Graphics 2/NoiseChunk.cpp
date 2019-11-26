@@ -312,7 +312,7 @@ void NoiseChunk::genTerrain(Shader* myShader, glm::vec3 offset)
 
 void NoiseChunk::genTerrainCollider(glm::vec3 offset)
 { 
-	const int colliderScaleDownFactor = 2;
+	const int colliderScaleDownFactor = 1;
 	const int newSize = size / colliderScaleDownFactor;
 	const int newHeight = height / colliderScaleDownFactor;
 	float newChunkXScale = chunkScale * float(size - 1) / float(newSize - 1);
@@ -677,12 +677,12 @@ glm::vec3 NoiseChunk::colourSelector(float y, glm::vec3 normal)
 	float colourLevel = fmod(y + 0.001, terraceHeight) / (terraceHeight);
 	if ((colourLevel > 0.95 || colourLevel < 0.03) && glm::dot(normal, glm::vec3(0, 1, 0)) > 0.8)
 	{
-		return glm::vec3(0.85, 0.73, 0.37);
+		return glm::vec3(0.85, 0.73, 0.37) * pow(glm::dot(normal, glm::vec3(0, 1, 0)), 2);
 	}
 	colourLevel = fmod(y + 0.002, terraceHeight) / (terraceHeight);
 	//return glm::vec3(0.0, 1;.0, 0.0);
 	colourLevel = 1.0 - colourLevel;
-	return glm::vec3(1.0 - colourLevel, colourLevel, 0.8f + (colourLevel * 0.2 - 0.2f));
+	return glm::vec3(1.0 - colourLevel, colourLevel, 0.8f + (colourLevel * 0.2 - 0.2f)) * (0.9f + (glm::dot(normal, glm::vec3(0, 1, 0)) * 0.15f) );
 }
 
 

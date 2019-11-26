@@ -357,6 +357,9 @@ void update()
 
 void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainModel)
 {
+	vector<glm::vec3> newPositions;
+	vector<glm::vec3> newVelocities;
+
 	// create two obbs
 	OBB A, B;
 
@@ -486,7 +489,7 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							glm::vec4 b2 = g * glm::vec4(p2[0], p2[1], p2[2], 1.0f) - b;
 							glm::vec4 c2 = g * glm::vec4(p3[0], p3[1], p3[2], 1.0f) - c;
 
-							glm::vec3 rotationalVel = glm::vec3((a2 + b2 + c2) / 3) / (float)App::deltaTime;
+							glm::vec3 rotationalVel = glm::vec3((a2 + b2 + c2) / 1) / (float)App::deltaTime;
 
 							p1[0] = a.x;
 							p1[1] = a.y;
@@ -501,9 +504,13 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							Vector3d n = terrainModel->theFaceNormals[j];
 							glm::vec3 normal = glm::vec3(n.x, n.y, n.z);
 
+							glm::vec3 newPos = player.position;
+							glm::vec3 newVel = player.velocity;
+
 							if (IntersectionTests::NoDivTriTriIsect(p1, p2, p3, t1, t2, t3) == 1)
 							{
-								player.position -= player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
+								//player.position -= player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
+								newPos -= newVel * (float)(App::deltaTime * timeLeft / pow(2, testCount));
 								timeUsed -= 1.0 / pow(2, testCount);
 								testCount++;
 								/*cout << "verts\n";
@@ -526,15 +533,18 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 							}
 							else
 							{
-								player.position += player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
+								//player.position += player.velocity * (float)(App::deltaTime * timeLeft / pow(2, testCount));
+								newPos += newVel * (float)(App::deltaTime * timeLeft / pow(2, testCount));
 								timeUsed += 1.0 / pow(2, testCount);
 								testCount++;
 							}
 							if (testCount == maxTests)
 							{
 								collisionCount++;
-								player.position -= player.velocity * (float)App::deltaTime * (1-timeUsed) * timeLeft;
-								float a = (1 - pow(glm::length(player.velocity), 2) / pow(maxVel, 2));
+								//player.position -= player.velocity * (float)App::deltaTime * (1-timeUsed) * timeLeft;
+								newPos -= newVel * (float)App::deltaTime * (1 - timeUsed) * timeLeft;
+								//float a = (1 - pow(glm::length(player.velocity), 2) / pow(maxVel, 2));
+								float a = (1 - pow(glm::length(newVel), 2) / pow(maxVel, 2));
 								if (a < 0)
 								{
 									a = 0;
@@ -546,12 +556,20 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 								float b = minBounciness + (1-minBounciness) * a;
 								//if (!glm::dot(player.velocity, normal) < 0)
 								{
-									player.velocity = glm::reflect(player.velocity, normal) * b;
+									//player.velocity = glm::reflect(player.velocity, normal) * b;
+									newVel = glm::reflect(newVel, normal) * b;
 								}
 								
 								//player.velocity = glm::reflect(player.velocity, normal);
-								player.position += player.velocity * (float)App::deltaTime * (1 - timeUsed) * timeLeft;
+								//player.position += player.velocity * (float)App::deltaTime * (1 - timeUsed) * timeLeft;
+								newPos += newVel * (float)App::deltaTime * (1 - timeUsed) * timeLeft;
 								timeLeft = (float)App::deltaTime * (1 - timeUsed) * timeLeft;
+
+								if (glm::dot(newVel, normal) > 0)
+								{
+									newPositions.push_back(newPos);
+									newVelocities.push_back(newVel);
+								}
 							}
 						}
 					}
@@ -578,6 +596,24 @@ void doCollisions(Octree* playerOct, Octree* terrainOct, ThreeDModel* terrainMod
 				}
 			}
 		}
+	}
+
+	glm::vec3 newPos = glm::vec3(0, 0, 0);
+	glm::vec3 newVel = glm::vec3(0, 0, 0);
+
+	for each (glm::vec3 pos in newPositions)
+	{
+		newPos += pos;
+	}
+	for each (glm::vec3 vel in newVelocities)
+	{
+		newVel += vel;
+	}
+
+	if (newPositions.size() > 0)
+	{
+		player.position = newPos / float(newPositions.size());
+		player.velocity = newVel / float(newVelocities.size());
 	}
 }
 
